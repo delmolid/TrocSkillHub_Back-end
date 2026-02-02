@@ -10,7 +10,7 @@ import org.hibernate.annotations.JdbcTypeCode;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
-@Table(name = "\"user\"")
+@Table(name = "users")
 public class User {
 
     @Id

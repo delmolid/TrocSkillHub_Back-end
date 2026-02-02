@@ -1,6 +1,6 @@
 --V1__initial_schema.sql
 
-CREATE TABLE "user" (
+CREATE TABLE "users" (
     id BIGSERIAL PRIMARY KEY,
     first_name VARCHAR(255) NOT NULL,
     last_name VARCHAR(255) NOT NULL,
@@ -17,4 +17,4 @@ CREATE TABLE "user" (
 );
 
 -- Index pour améliorer les performances
-CREATE INDEX idx_user_email ON "user"(email);
+CREATE INDEX idx_user_email ON "users"(email);

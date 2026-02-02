@@ -1,6 +1,6 @@
 --V2__seed_add_data_users.sql
 
-INSERT INTO "user" (first_name, last_name, picture, email, password, address, city, country, phone_number, description, created_at, updated_at)
+INSERT INTO "users" (first_name, last_name, picture, email, password, address, city, country, phone_number, description, created_at, updated_at)
 VALUES 
 
 ('Jean', 'Martin', NULL, 'jean.martin@example.fr', '$2a$10$yAB8k5LKAnY6I9ZwO3M4QfS2uB0cD4eF6gH8iJ0kL2mN4oP6qR8sT', '42 avenue des Champs', 'Lyon', 'France', '+33 6 23 45 67 89', 'Graphiste freelance, jaime créer des designs modernes et épurés.', '2024-01-16', NULL),
