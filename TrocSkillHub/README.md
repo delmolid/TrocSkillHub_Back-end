@@ -120,36 +120,121 @@ src/
 
 ### Exemples de requêtes
 
-**Créer un utilisateur**
+### Exemples de requêtes
+
+**Récupérer tous les utilisateurs**
 ```bash
-curl -X POST http://localhost:8080/api/users \
-  -H "Content-Type: application/json" \
-  -d '{
-    "username": "jean_dupont",
-    "email": "jean@example.com",
-    "password": "motdepasse123"
-  }'
+curl http://localhost:8080/api/users
 ```
 
-**Récupérer un utilisateur**
+
+**Récupérer un utilisateur par ID**
 ```bash
 curl http://localhost:8080/api/users/1
 ```
 
+Réponse :
+```json
+[
+  {
+    "id": 1,
+    "firstName": "Jean",
+    "lastName": "Martin",
+    "picture": null,
+    "email": "jean.martin@example.fr",
+    "address": "42 avenue des Champs",
+    "city": "Lyon",
+    "country": "France",
+    "phoneNumber": "+33 6 23 45 67 89",
+    "description": "Graphiste freelance, j'aime créer des designs modernes et épurés."
+  }
+]
+```
+**Créer un utilisateur**
+```bash
+curl -X POST http://localhost:8080/api/users \
+  -H "Content-Type: application/json; charset=utf-8" \
+  -d '{"firstName":"Marie","lastName":"Curie","picture":null,"email":"marie.curie@example.fr","password":"MonMotDePasse123","address":"12 rue de la Science","city":"Paris","country":"France","phoneNumber":"+33 6 98 76 54 32","description":"Passionnee de physique et chimie."}'
+```
+
+Réponse (201 Created) :
+```json
+{
+  "id": 3,
+  "firstName": "Marie",
+  "lastName": "Curie",
+  "picture": null,
+  "email": "marie.curie@example.fr",
+  "address": "12 rue de la Science",
+  "city": "Paris",
+  "country": "France",
+  "phoneNumber": "+33 6 98 76 54 32",
+  "description": "Passionnee de physique et chimie."
+}
+```
+
+> 🔒 Le champ `password` est accepté en entrée mais jamais retourné dans les réponses.
+
 **Mettre à jour un utilisateur**
 ```bash
-curl -X PUT http://localhost:8080/api/users/1 \
-  -H "Content-Type: application/json" \
-  -d '{
-    "username": "jean_dupont_modifie",
-    "email": "jean.nouveau@example.com"
-  }'
+curl -X PUT http://localhost:8080/api/users/5 \
+  -H "Content-Type: application/json; charset=utf-8" \
+  -d '{"firstName":"Marie","lastName":"Curie-Sklodowska","picture":null,"email":"marie.curie@example.fr","password":"NouveauMotDePasse456","address":"15 rue Pierre et Marie Curie","city":"Paris","country":"France","phoneNumber":"+33 6 98 76 54 32","description":"Physicienne et chimiste, double prix Nobel."}'
+```
+
+Réponse (200 OK) :
+```json
+{
+  "id": 5,
+  "firstName": "Marie",
+  "lastName": "Curie-Sklodowska",
+  "picture": null,
+  "email": "marie.curie@example.fr",
+  "address": "15 rue Pierre et Marie Curie",
+  "city": "Paris",
+  "country": "France",
+  "phoneNumber": "+33 6 98 76 54 32",
+  "description": "Physicienne et chimiste, double prix Nobel."
+}
 ```
 
 **Supprimer un utilisateur**
 ```bash
-curl -X DELETE http://localhost:8080/api/users/1
+curl -X DELETE http://localhost:8080/api/users/5
 ```
+
+Réponse (200 OK) :
+```
+Utilisateur supprimé avec succès
+```
+
+**Rechercher par ville**
+```bash
+curl http://localhost:8080/api/users/city/Paris
+```
+
+**Rechercher par pays**
+```bash
+curl http://localhost:8080/api/users/country/France
+```
+
+### Structure UserDTO
+
+| Champ | Type | Requis | Description |
+|-------|------|--------|-------------|
+| id | Long | Non | Auto-généré |
+| firstName | String | Oui | Prénom |
+| lastName | String | Oui | Nom |
+| picture | String | Non | URL de la photo |
+| email | String | Oui | Email (unique) |
+| password | String | Oui* | Mot de passe (write-only) |
+| address | String | Oui | Adresse |
+| city | String | Oui | Ville |
+| country | String | Oui | Pays |
+| phoneNumber | String | Oui | Téléphone |
+| description | String | Non | Biographie |
+
+> *Le password est requis à la création, jamais retourné dans les réponses.
 
 ### Codes de réponse
 
@@ -158,7 +243,7 @@ curl -X DELETE http://localhost:8080/api/users/1
 | 200 | Succès |
 | 201 | Ressource créée |
 | 404 | Ressource non trouvée |
-| 409 | Conflit (ex: email déjà utilisé) |
+| 409 | Conflit (email déjà utilisé) |
 
 ## MapStruct
 
