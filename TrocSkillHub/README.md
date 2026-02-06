@@ -34,7 +34,8 @@ POSTGRES_PASSWORD=*****
 
 ### 2. Lancer l'application
 ```bash
-# Démarrer les conteneurs
+# 1.Aller dans le dossier TrocSkillHub
+# 2.Démarrer les conteneurs
 docker compose up
 
 # Vérifier que l'application fonctionne
@@ -76,7 +77,6 @@ Les migrations SQL se trouvent dans `src/main/resources/db/migration/`.
 Exemples :
 - `V1__create_users_table.sql`
 - `V2__create_skills_table.sql`
-- `V3__add_email_to_users.sql`
 
 **Après chaque nouvelle migration** :
 ```bash
@@ -117,8 +117,6 @@ src/
 | POST | `/api/users` | Crée un utilisateur | UserDTO | `201` : UserDTO / `409` |
 | PUT | `/api/users/{id}` | Met à jour un utilisateur | UserDTO | `200` : UserDTO / `404` |
 | DELETE | `/api/users/{id}` | Supprime un utilisateur | - | `200` / `404` |
-
-### Exemples de requêtes
 
 ### Exemples de requêtes
 
