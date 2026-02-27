@@ -1,8 +1,9 @@
-package RNCP.TrocSkillHub.config;
+package RNCP.TrocSkillHub.Config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -34,8 +35,14 @@ public class SecurityConfig {
         public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
                 http
+                                .csrf(csrf -> csrf
+                                .ignoringRequestMatchers("/api/**")
+            )
                                 .authorizeHttpRequests(auth -> auth
-                                                .anyRequest().authenticated())
+                                .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/users").authenticated()
+                                .anyRequest().authenticated()
+)
                                 .formLogin(form -> form
                                                 .usernameParameter("email")
                                                 .permitAll());
