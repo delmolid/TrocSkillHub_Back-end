@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import static org.assertj.core.api.Assertions.*;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -79,6 +80,19 @@ public class UserControllerTest {
         assertThat(response.getBody()).hasSize(1);
         assertThat(response.getBody().get(0).email()).isEqualTo("test@example.com");
     }
+    @Test
+    @DisplayName("getAllUsers - should return empty list when no users")
+    void getAllUsers_shouldReturnEmptyList_whenNoUsers() {
+    when(userService.getAllUsers()).thenReturn(Collections.emptyList());
+    when(userMapper.toDTOList(Collections.emptyList())).thenReturn(Collections.emptyList());
+
+    ResponseEntity<List<UserDTO>> response = userController.getAllUsers();
+
+    assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    assertThat(response.getBody()).isEmpty();
+    }
+
+    
 
     // ========== GET USER BY ID ==========
 
@@ -189,4 +203,5 @@ public class UserControllerTest {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
+
 }
