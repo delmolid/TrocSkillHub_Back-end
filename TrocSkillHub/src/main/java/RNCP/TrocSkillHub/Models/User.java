@@ -55,6 +55,24 @@ public class User {
     @Column(name = "updated_at")
     private LocalDate updatedAt;
 
+    @Column(name = "role", nullable = false)
+    private String role;
+
+    // Relation with Education
+    @ManyToOne
+    @JoinColumn(name = "education_id", nullable = true)
+    private Education education;
+
+    // Relation with Experience
+    @ManyToOne
+    @JoinColumn(name = "experience_id", nullable = true)
+    private Experience experience;
+
+    // Relation with Project
+    @ManyToOne
+    @JoinColumn(name = "projet_id", nullable = true)
+    private Project project;
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDate.now();
