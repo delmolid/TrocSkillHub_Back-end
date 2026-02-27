@@ -155,7 +155,7 @@ exemple compe user pour le dev
 ```bash
 curl -X POST http://localhost:8080/api/users \
   -H "Content-Type: application/json; charset=utf-8" \
-  -d '{"firstName":"Admin","lastName":"Dev","email":"admin@admin.fr","password":"admin","address":"1 rue Admin","city":"Paris","country":"France","phoneNumber":"+33 1 00 00 00 00","description":"Compte admin dev"}'
+  -d '{"firstName":"Admin","lastName":"Dev","email":"admin@admin.fr","password":"Adminadmin12@","address":"1 rue Admin","city":"Paris","country":"France","phoneNumber":"+33 1 00 00 00 00","description":"Compte admin dev"}'
 ```
 
 ```bash
