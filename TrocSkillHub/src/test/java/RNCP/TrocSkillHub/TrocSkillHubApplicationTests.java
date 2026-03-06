@@ -11,3 +11,5 @@ class TrocSkillHubApplicationTests {
 	}
 
 }
+
+//une commentaire pour tester le déclenchement d'ue ci suite à un nouveau commit
