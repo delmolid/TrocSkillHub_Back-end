@@ -307,3 +307,10 @@ public interface UserMapper {
 ## Licence
 
 Projet RNCP niveau 6 - Ada tech School Nantes 2026-2027
+
+
+
+## commande pour lancer le container postegresql_test
+docker-compose --profile test up -d
+## arreter le container postegresql_test et les volumes
+ docker-compose --profile test down -v
