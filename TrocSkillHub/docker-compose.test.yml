@@ -1,0 +1,42 @@
+services:
+  postgres-test:
+    image: postgres:16
+    container_name: postgres-test
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}_test
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres_test_data:/var/lib/postgresql/data
+    networks:
+      - troc-test-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}_test"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app-test:
+    build: .
+    container_name: spring-boot-test
+    depends_on:
+      postgres-test:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: test
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-test:5432/${POSTGRES_DB}_test
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "8081:8080"
+    networks:
+      - troc-test-network
+
+networks:
+  troc-test-network:
+    driver: bridge
+
+volumes:
+  postgres_test_data:
