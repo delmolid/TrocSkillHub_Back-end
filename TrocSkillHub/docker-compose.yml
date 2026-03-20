@@ -1,7 +1,7 @@
 services:
   postgres:
     image: postgres:16
-    container_name: postgres
+    container_name: postgres-dev
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -14,27 +14,6 @@ services:
       - troc-network
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  postgres-test:
-    image: postgres:16
-    container_name: postgres-test
-    profiles:
-      - test
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB}_test
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    ports:
-      - "5434:5432"
-    volumes:
-      - postgres_test_data:/var/lib/postgresql/data
-    networks:
-      - troc-test-network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}_test"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -56,11 +35,8 @@ services:
 
 networks:
   troc-network:
-    name: trocskillhub-network 
-    driver: bridge
-  troc-test-network:
+    name: trocskillhub-network
     driver: bridge
 
 volumes:
   postgres_data:
-  postgres_test_data:
