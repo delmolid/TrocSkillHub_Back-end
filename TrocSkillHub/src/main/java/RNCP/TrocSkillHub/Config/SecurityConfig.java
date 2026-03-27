@@ -40,8 +40,9 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**"))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/users").authenticated()
-                .anyRequest().authenticated()
+                .requestMatchers(HttpMethod.GET, "/api/users").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/users/{id}").permitAll()
+                // .anyRequest().authenticated()
             )
             .formLogin(form -> form
                 .usernameParameter("email")
