@@ -12,6 +12,7 @@ import RNCP.TrocSkillHub.Models.User;
 import RNCP.TrocSkillHub.Repositories.UserRepository;
 
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.util.Map;
@@ -96,12 +97,52 @@ public class AuthController {
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletResponse response) {
-        Cookie cookie = new Cookie("jwt", null);
-        cookie.setHttpOnly(true);
-        cookie.setMaxAge(0);
-        cookie.setPath("/");
-        response.addCookie(cookie);
-        
-        return ResponseEntity.ok(Map.of("message", "Déconnexion réussie"));
+            Cookie cookie = new Cookie("jwt", null);
+            cookie.setHttpOnly(true);
+            cookie.setMaxAge(0);
+            cookie.setPath("/");
+            response.addCookie(cookie);
+            
+            return ResponseEntity.ok(Map.of("message", "Déconnexion réussie"));
+        }
+        @GetMapping("/me")
+        public ResponseEntity<?> getCurrentUser(HttpServletRequest request) {
+        try {
+            // Récupère le token JWT depuis le cookie
+            String token = null;
+            
+            if (request.getCookies() != null) {
+                for (Cookie cookie : request.getCookies()) {
+                    if ("jwt".equals(cookie.getName())) {
+                        token = cookie.getValue();
+                        break;
+                    }
+                }
+            }
+            
+            if (token == null) {
+                return ResponseEntity.status(401)
+                    .body(Map.of("error", "Non authentifié"));
+            }
+            
+            // Extrait l'email depuis le token
+            String email = jwtService.extractEmail(token);
+            
+            // Récupère l'utilisateur depuis la base de données
+            User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
+            
+            // Retourne les informations de l'utilisateur (sans le mot de passe !)
+            return ResponseEntity.ok(Map.of(
+                "id", user.getId(),
+                "firstName", user.getFirstName(),
+                "lastName", user.getLastName(),
+                "email", user.getEmail()
+            ));
+            
+        } catch (Exception e) {
+            return ResponseEntity.status(401)
+                .body(Map.of("error", "Token invalide"));
+        }
     }
 }
