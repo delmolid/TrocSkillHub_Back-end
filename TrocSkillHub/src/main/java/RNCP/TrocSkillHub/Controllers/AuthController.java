@@ -43,7 +43,8 @@ public class AuthController {
         String prenom = body.get("prenom");
         String email = body.get("email");
         String password = body.get("password");
-
+        String city = body.get("city");
+        String country = body.get("country");
         try {
             // Vérifie si l'email existe déjà
             if (userRepository.existsByEmail(email)) {
@@ -57,7 +58,9 @@ public class AuthController {
             newUser.setLastName(nom);
             newUser.setEmail(email);
             newUser.setPassword(passwordEncoder.encode(password));
-            
+             newUser.setCity(city);
+            newUser.setCountry(country);
+
             userRepository.save(newUser);
 
             return ResponseEntity.ok(Map.of("message", "Inscription réussie"));
@@ -137,7 +140,9 @@ public class AuthController {
                 "id", user.getId(),
                 "firstName", user.getFirstName(),
                 "lastName", user.getLastName(),
-                "email", user.getEmail()
+                "email", user.getEmail(),
+                "city", user.getCity() != null ? user.getCity() : "",
+                "country", user.getCountry() != null ? user.getCountry() : ""
             ));
             
         } catch (Exception e) {
