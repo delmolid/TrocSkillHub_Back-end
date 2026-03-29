@@ -105,8 +105,8 @@ public class AuthController {
             
             return ResponseEntity.ok(Map.of("message", "Déconnexion réussie"));
         }
-        @GetMapping("/me")
-        public ResponseEntity<?> getCurrentUser(HttpServletRequest request) {
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentUser(HttpServletRequest request) {
         try {
             // Récupère le token JWT depuis le cookie
             String token = null;
