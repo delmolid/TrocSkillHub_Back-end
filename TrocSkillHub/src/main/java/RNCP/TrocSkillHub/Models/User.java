@@ -40,7 +40,7 @@ public class User {
     @Column(nullable = true)
     private String city;
     
-    @Column(name = "Country", nullable = true)
+    @Column(name = "country", nullable = true)
     private String country;
     
     @Column(name = "phone_number", nullable = true)
