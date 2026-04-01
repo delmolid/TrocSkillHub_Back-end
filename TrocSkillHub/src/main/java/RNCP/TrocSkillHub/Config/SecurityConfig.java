@@ -59,8 +59,11 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/auth/logout").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/auth/me").authenticated()
                 
+                // Endpoint d'erreur
+                .requestMatchers("/error").permitAll()
+                
                 // Tous les autres endpoints nécessitent une authentification
-                // .anyRequest().authenticated()
+                .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 

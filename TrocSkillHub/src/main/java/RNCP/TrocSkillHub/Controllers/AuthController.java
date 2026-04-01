@@ -4,12 +4,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import RNCP.TrocSkillHub.Config.JwtService;
 import RNCP.TrocSkillHub.Models.User;
 import RNCP.TrocSkillHub.Repositories.UserRepository;
+import RNCP.TrocSkillHub.Services.UserService;  // ← AJOUTER
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -24,17 +24,17 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final UserService userService;  // ← AJOUTER
 
     public AuthController(
             AuthenticationManager authenticationManager, 
             JwtService jwtService,
             UserRepository userRepository,
-            PasswordEncoder passwordEncoder) {
+            UserService userService) {  // ← AJOUTER
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
         this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
+        this.userService = userService;  // ← AJOUTER
     }
 
     @PostMapping("/register")
@@ -45,26 +45,25 @@ public class AuthController {
         String password = body.get("password");
         String city = body.get("city");
         String country = body.get("country");
+        
         try {
-            // Vérifie si l'email existe déjà
-            if (userRepository.existsByEmail(email)) {
-                return ResponseEntity.status(400)
-                    .body(Map.of("error", "Cet email existe déjà"));
-            }
-
-            // Crée le nouvel utilisateur
             User newUser = new User();
             newUser.setFirstName(prenom);
             newUser.setLastName(nom);
             newUser.setEmail(email);
-            newUser.setPassword(passwordEncoder.encode(password));
-             newUser.setCity(city);
+            newUser.setPassword(password);
+            newUser.setCity(city);
             newUser.setCountry(country);
 
-            userRepository.save(newUser);
+            userService.createUser(newUser);
 
             return ResponseEntity.ok(Map.of("message", "Inscription réussie"));
 
+        } catch (RuntimeException e) {
+            
+            return ResponseEntity.status(400)
+                .body(Map.of("error", e.getMessage()));
+                
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(500)
@@ -84,7 +83,7 @@ public class AuthController {
             String token = jwtService.generateToken(email);
 
             Cookie cookie = new Cookie("jwt", token);
-            cookie.setHttpOnly(false);
+            cookie.setHttpOnly(true);
             cookie.setPath("/");
             cookie.setMaxAge(86400);
 
@@ -100,18 +99,18 @@ public class AuthController {
 
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletResponse response) {
-            Cookie cookie = new Cookie("jwt", null);
-            cookie.setHttpOnly(true);
-            cookie.setMaxAge(0);
-            cookie.setPath("/");
-            response.addCookie(cookie);
-            
-            return ResponseEntity.ok(Map.of("message", "Déconnexion réussie"));
-        }
+        Cookie cookie = new Cookie("jwt", null);
+        cookie.setHttpOnly(true);
+        cookie.setMaxAge(0);
+        cookie.setPath("/");
+        response.addCookie(cookie);
+        
+        return ResponseEntity.ok(Map.of("message", "Déconnexion réussie"));
+    }
+    
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentUser(HttpServletRequest request) {
         try {
-            // Récupère le token JWT depuis le cookie
             String token = null;
             
             if (request.getCookies() != null) {
@@ -128,14 +127,10 @@ public class AuthController {
                     .body(Map.of("error", "Non authentifié"));
             }
             
-            // Extrait l'email depuis le token
             String email = jwtService.extractEmail(token);
-            
-            // Récupère l'utilisateur depuis la base de données
             User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
             
-            // Retourne les informations de l'utilisateur (sans le mot de passe !)
             return ResponseEntity.ok(Map.of(
                 "id", user.getId(),
                 "firstName", user.getFirstName(),

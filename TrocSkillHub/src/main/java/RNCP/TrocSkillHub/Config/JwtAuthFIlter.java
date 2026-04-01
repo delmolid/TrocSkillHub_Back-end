@@ -1,4 +1,3 @@
-
 package RNCP.TrocSkillHub.Config;
 
 import jakarta.servlet.FilterChain;
@@ -33,25 +32,33 @@ public class JwtAuthFIlter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain) throws ServletException, IOException {
 
-        // 3. Extrait le token (on enlève "Bearer ")
+        // Extraire le token depuis les cookies
         String token = null;
 
-        if (request.getCookies() != null)
+        if (request.getCookies() != null) {
             for (jakarta.servlet.http.Cookie cookie : request.getCookies()) {
                 if ("jwt".equals(cookie.getName())) {
                     token = cookie.getValue();
                     break;
                 }
             }
-        // 4. Vérifie le token et authentifie l'utilisateur
+        }
+
+        // Vérifier le token et authentifier l'utilisateur
         if (token != null && jwtService.isTokenValid(token)) {
-            String email = jwtService.extractEmail(token);
-            UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+            try {
+                String email = jwtService.extractEmail(token);
+                UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
-            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails,
-                    null, userDetails.getAuthorities());
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                        userDetails, null, userDetails.getAuthorities());
 
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            } catch (Exception e) {
+                // Si l'utilisateur n'existe pas ou autre erreur, on ignore simplement
+                // Le filtre ne bloque pas la requête
+                System.err.println("JWT authentication error: " + e.getMessage());
+            }
         }
 
         filterChain.doFilter(request, response);
