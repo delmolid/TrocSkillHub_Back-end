@@ -30,11 +30,11 @@ public class AuthController {
             AuthenticationManager authenticationManager, 
             JwtService jwtService,
             UserRepository userRepository,
-            UserService userService) {  // ← AJOUTER
+            UserService userService) {
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
         this.userRepository = userRepository;
-        this.userService = userService;  // ← AJOUTER
+        this.userService = userService;
     }
 
     @PostMapping("/register")
