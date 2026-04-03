@@ -23,9 +23,17 @@ public class JwtAuthFIlter extends OncePerRequestFilter {
     private final CustomUserDetailsService userDetailsService;
     public CorsConfig corsConfig;
 
+
     public JwtAuthFIlter(JwtService jwtService, CustomUserDetailsService userDetailsService) {
         this.jwtService = jwtService;
         this.userDetailsService = userDetailsService;
+    };
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        String path = request.getServletPath();
+        return path.startsWith("/api/auth/login")
+                || path.startsWith("/api/auth/register");
     }
 
     @Override

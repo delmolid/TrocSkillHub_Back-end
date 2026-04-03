@@ -38,39 +38,49 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody Map<String, String> body) {
-        String nom = body.get("nom");
-        String prenom = body.get("prenom");
-        String email = body.get("email");
-        String password = body.get("password");
-        String city = body.get("city");
-        String country = body.get("country");
-        try {
-            // Vérifie si l'email existe déjà
-            if (userRepository.existsByEmail(email)) {
-                return ResponseEntity.status(400)
+public ResponseEntity<?> register(@RequestBody Map<String, String> body, HttpServletResponse response) {
+    String nom = body.get("nom");
+    String prenom = body.get("prenom");
+    String email = body.get("email");
+    String password = body.get("password");
+    String city = body.get("city");
+    String country = body.get("country");
+
+    try {
+        if (userRepository.existsByEmail(email)) {
+            return ResponseEntity.status(400)
                     .body(Map.of("error", "Cet email existe déjà"));
-            }
-
-            // Crée le nouvel utilisateur
-            User newUser = new User();
-            newUser.setFirstName(prenom);
-            newUser.setLastName(nom);
-            newUser.setEmail(email);
-            newUser.setPassword(passwordEncoder.encode(password));
-             newUser.setCity(city);
-            newUser.setCountry(country);
-
-            userRepository.save(newUser);
-
-            return ResponseEntity.ok(Map.of("message", "Inscription réussie"));
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(500)
-                .body(Map.of("error", "Erreur lors de l'inscription"));
         }
+
+        User newUser = new User();
+        newUser.setFirstName(prenom);
+        newUser.setLastName(nom);
+        newUser.setEmail(email);
+        newUser.setPassword(passwordEncoder.encode(password));
+        newUser.setCity(city);
+        newUser.setCountry(country);
+
+        User savedUser = userRepository.save(newUser); // ← récupérer l'utilisateur sauvegardé
+
+        // ← Générer le JWT et le mettre dans un cookie
+        String token = jwtService.generateToken(email);
+        Cookie cookie = new Cookie("jwt", token);
+        cookie.setHttpOnly(true); // ← true pour la sécurité
+        cookie.setPath("/");
+        cookie.setMaxAge(86400);
+        response.addCookie(cookie);
+
+        return ResponseEntity.ok(Map.of(
+                "message", "Inscription réussie",
+                "id", savedUser.getId() // ← retourner l'ID
+        ));
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        return ResponseEntity.status(500)
+                .body(Map.of("error", "Erreur lors de l'inscription"));
     }
+}
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> body, HttpServletResponse response) {
