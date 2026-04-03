@@ -45,22 +45,19 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
                 
-                // Page d'accueil et ressources statiques
-                .requestMatchers("/", "/index.html", "/static/**", "/css/**", "/js/**", "/images/**", "/favicon.ico").permitAll()
-
-                // Endpoints publics (users)
-                .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/users").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/users/{id}").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/users").authenticated()
+                .requestMatchers(HttpMethod.GET, "/api/users").authenticated()
+                .requestMatchers(HttpMethod.GET, "/api/users/{id}").authenticated()
+                .requestMatchers(HttpMethod.GET, "/api/auth/me").authenticated()  
                 
-                // Endpoints d'authentification (publics)
+                
+                // // Endpoints d'authentification (publics)
                 .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/auth/register").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/auth/logout").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/auth/me").authenticated()
                 
                 // Tous les autres endpoints nécessitent une authentification
-                // .anyRequest().authenticated()
+                .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
