@@ -19,8 +19,15 @@ public class CategoryService {
     private final CategoryMapper categoryMapper;
     
     public List<CategoryDTO> getAllCategories() {
-        
+
         List<Category> categories = categoryRepository.findAll();
         return categoryMapper.toDTOList(categories);
+    }
+
+    @Transactional
+    public CategoryDTO createCategory(CategoryDTO categoryDTO) {
+        Category category = categoryMapper.toEntity(categoryDTO);
+        Category savedCategory = categoryRepository.save(category);
+        return categoryMapper.toDTO(savedCategory);
     }
 }
