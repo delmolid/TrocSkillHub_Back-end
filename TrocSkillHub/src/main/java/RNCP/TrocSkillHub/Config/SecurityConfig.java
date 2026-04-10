@@ -55,6 +55,10 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/auth/register").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/auth/logout").permitAll()
+
+                // Endpoints catégories
+                .requestMatchers(HttpMethod.GET, "/api/categories").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/categories").authenticated()
                 
                 // Tous les autres endpoints nécessitent une authentification
                 .anyRequest().authenticated()
