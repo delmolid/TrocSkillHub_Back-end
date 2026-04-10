@@ -1,13 +1,11 @@
 package RNCP.TrocSkillHub.Repositories;
 
-import java.util.List;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import RNCP.TrocSkillHub.Models.Education;;;
+import RNCP.TrocSkillHub.Models.Experience;
 
 @Repository
-public interface EducationRepository extends JpaRepository<Education, Long> {
+public interface ExperienceRepository extends JpaRepository<Experience, Long> {
 
 }

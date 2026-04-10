@@ -26,17 +26,23 @@ public class Project {
     @Column(name = "date_end", nullable = true)
     private LocalDate dateEnd;
 
+    // Relation with User
+    @ManyToOne
+    @JoinColumn(name = "users_id", nullable = false)
+    private User user;
+
     // Constructor required by JPA
     public Project() {
     }
 
     // Constructor with fields
-    public Project(String name, String description, String links, LocalDate dateStart, LocalDate dateEnd) {
+    public Project(String name, String description, String links, LocalDate dateStart, LocalDate dateEnd, User user) {
         this.name = name;
         this.description = description;
         this.links = links;
         this.dateStart = dateStart;
         this.dateEnd = dateEnd;
+        this.user = user;
     }
 
     // Getters
@@ -87,6 +93,14 @@ public class Project {
 
     public void setDateEnd(LocalDate dateEnd) {
         this.dateEnd = dateEnd;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     @Override

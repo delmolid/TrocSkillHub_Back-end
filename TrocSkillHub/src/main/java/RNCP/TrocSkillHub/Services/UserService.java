@@ -1,5 +1,6 @@
 package RNCP.TrocSkillHub.Services;
 
+import RNCP.TrocSkillHub.Models.Education;
 import RNCP.TrocSkillHub.Models.User;
 
 import java.util.List;
@@ -19,5 +20,11 @@ public interface UserService {
     boolean existsByEmail(String email);
     List<User> getUsersByCity(String city);
     List<User> getUsersByCountry(String country);
-    
+
+    Optional<Education> getEducationById(Long id);
+
+    List<Education> getAllEducationById(Long id);
+
+    Education createEducation(Education education);
+
 }

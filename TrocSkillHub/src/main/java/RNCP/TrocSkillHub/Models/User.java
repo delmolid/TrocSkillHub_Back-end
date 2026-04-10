@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 
 import java.sql.Types;
 import java.time.LocalDate;
+import java.util.List;
 
 import org.hibernate.annotations.JdbcTypeCode;
 
@@ -58,20 +59,14 @@ public class User {
     @Column(name = "role", nullable = false)
     private String role;
 
-    // Relation with Education
-    @ManyToOne
-    @JoinColumn(name = "education_id", nullable = true)
-    private Education education;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Education> education;
 
-    // Relation with Experience
-    @ManyToOne
-    @JoinColumn(name = "experience_id", nullable = true)
-    private Experience experience;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Experience> experience;
 
-    // Relation with Project
-    @ManyToOne
-    @JoinColumn(name = "projet_id", nullable = true)
-    private Project project;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Project> project;
 
     @PrePersist
     protected void onCreate() {
@@ -82,12 +77,13 @@ public class User {
     protected void onUpdate() {
         this.updatedAt = LocalDate.now();
     }
-    
-    // Constructeur
+
     public User() {
     }
 
-    public User(String firstName,String lastName,String address,String country,String city,String phoneNumber, String email, byte[] picture) {
+    public User(String firstName, String lastName, String address, String country, String city, String phoneNumber,
+            String email, byte[] picture, List<Education> education, List<Experience> experience,
+            List<Project> project) {
        
         this.firstName = firstName;
         this.lastName = lastName;
@@ -97,6 +93,9 @@ public class User {
         this.phoneNumber = phoneNumber;
         this.email = email;
         this.picture = picture;
+        this.education = education;
+        this.experience = experience;
+        this.project = project;
     }
     // Getters
     public Long getId() {
@@ -150,7 +149,18 @@ public class User {
         return updatedAt;
     }
 
-    // Setters
+    public List<Education> getEducation() {
+        return education;
+    }
+
+    public List<Experience> getExperience() {
+        return experience;
+    }
+
+    public List<Project> getProject() {
+        return project;
+    }
+
     public void setId(Long id) {
         this.id = id;
     }
@@ -202,6 +212,19 @@ public class User {
     public void setUpdatedAt(LocalDate updateAt){
         this.updatedAt = updateAt;
     }
+
+    public void setEducation(List<Education> education) {
+        this.education = education;
+    }
+
+    public void setExperience(List<Experience> experience) {
+        this.experience = experience;
+    }
+
+    public void setProject(List<Project> project) {
+        this.project = project;
+    }
+
 @Override
 public String toString() {
     return "User{" +

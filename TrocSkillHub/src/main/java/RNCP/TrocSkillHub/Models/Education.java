@@ -23,19 +23,23 @@ public class Education {
     @Column(name = "date_end", nullable = true)
     private LocalDate dateEnd;
 
+    // Relation with User
+    @ManyToOne
+    @JoinColumn(name = "users_id", nullable = false)
+    private User user;
+
     // Constructor required by JPA
     public Education() {
     }
 
-    // Constructor with fields
-    public Education(String name, String school, LocalDate dateStart, LocalDate dateEnd) {
+    public Education(String name, String school, LocalDate dateStart, LocalDate dateEnd, User user) {
         this.name = name;
         this.school = school;
         this.dateStart = dateStart;
         this.dateEnd = dateEnd;
+        this.user = user;
     }
 
-    // Getters
     public Long getId() {
         return id;
     }
@@ -56,7 +60,6 @@ public class Education {
         return dateEnd;
     }
 
-    // Setters
     public void setId(Long id) {
         this.id = id;
     }
@@ -75,6 +78,14 @@ public class Education {
 
     public void setDateEnd(LocalDate dateEnd) {
         this.dateEnd = dateEnd;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     @Override

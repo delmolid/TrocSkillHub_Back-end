@@ -7,7 +7,10 @@ import java.util.Optional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import RNCP.TrocSkillHub.Models.Education;
+import RNCP.TrocSkillHub.Models.Experience;
 import RNCP.TrocSkillHub.Models.User;
+import RNCP.TrocSkillHub.Repositories.EducationRepository;
 import RNCP.TrocSkillHub.Repositories.UserRepository;
 import RNCP.TrocSkillHub.Services.UserService;
 
@@ -16,9 +19,12 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EducationRepository educationRepository;
 
-    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserRepository userRepository, EducationRepository educationRepository,
+            PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.educationRepository = educationRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -28,14 +34,14 @@ public class UserServiceImpl implements UserService {
         if (userRepository.existsByEmail(user.getEmail())) {
             throw new RuntimeException("Cet email existe déjà!");
         }
-        
+
         // Valider la force du mot de passe
         validatePasswordStrength(user.getPassword());
-        
+
         // Hacher le mot de passe avant de le stocker
         String hashedPassword = passwordEncoder.encode(user.getPassword());
         user.setPassword(hashedPassword);
-        
+
         return userRepository.save(user);
     }
 
@@ -52,20 +58,20 @@ public class UserServiceImpl implements UserService {
     @Override
     public User updateUser(Long id, User user) {
         return userRepository.findById(id)
-            .map(existingUser -> {
-                existingUser.setFirstName(user.getFirstName());
-                existingUser.setLastName(user.getLastName());
-                existingUser.setAddress(user.getAddress());
-                existingUser.setEmail(user.getEmail());
-                existingUser.setPicture(user.getPicture());
-                existingUser.setCity(user.getCity());
-                existingUser.setCountry(user.getCountry());
-                existingUser.setPhoneNumber(user.getPhoneNumber());
-                existingUser.setDescription(user.getDescription());
-                existingUser.setUpdatedAt(LocalDate.now());
-                return userRepository.save(existingUser);
-            })
-            .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé avec l'id: " + id));
+                .map(existingUser -> {
+                    existingUser.setFirstName(user.getFirstName());
+                    existingUser.setLastName(user.getLastName());
+                    existingUser.setAddress(user.getAddress());
+                    existingUser.setEmail(user.getEmail());
+                    existingUser.setPicture(user.getPicture());
+                    existingUser.setCity(user.getCity());
+                    existingUser.setCountry(user.getCountry());
+                    existingUser.setPhoneNumber(user.getPhoneNumber());
+                    existingUser.setDescription(user.getDescription());
+                    existingUser.setUpdatedAt(LocalDate.now());
+                    return userRepository.save(existingUser);
+                })
+                .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé avec l'id: " + id));
     }
 
     @Override
@@ -110,7 +116,8 @@ public class UserServiceImpl implements UserService {
             throw new RuntimeException("Le mot de passe doit contenir au moins un chiffre");
         }
         if (!password.matches(".*[@#$%^&+=!?*].*")) {
-        throw new RuntimeException("Le mot de passe doit contenir au moins un caractère spécial (@#$%^&+=!?*)");
+            throw new RuntimeException("Le mot de passe doit contenir au moins un caractère spécial (@#$%^&+=!?*)");
         }
     }
+
 }
