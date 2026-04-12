@@ -45,22 +45,21 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
                 
+                // RÈGLES PUBLIQUES EN PREMIER
+                
+                .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/auth/register").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/auth/logout").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/categories").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/categories").permitAll()
+                
+                // RÈGLES AUTHENTIFIÉES ENSUITE
+
                 .requestMatchers(HttpMethod.POST, "/api/users").authenticated()
                 .requestMatchers(HttpMethod.GET, "/api/users").authenticated()
                 .requestMatchers(HttpMethod.GET, "/api/users/{id}").authenticated()
                 .requestMatchers(HttpMethod.GET, "/api/auth/me").authenticated()  
                 
-                
-                // // Endpoints d'authentification (publics)
-                .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/auth/register").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/auth/logout").permitAll()
-
-                // Endpoints catégories
-                .requestMatchers(HttpMethod.GET, "/api/categories").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/categories").authenticated()
-                
-                // Tous les autres endpoints nécessitent une authentification
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
