@@ -21,10 +21,10 @@ public interface UserService {
     List<User> getUsersByCity(String city);
     List<User> getUsersByCountry(String country);
 
-    Optional<Education> getEducationById(Long id);
+    // Optional<Education> getEducationById(Long id);
 
-    List<Education> getAllEducationById(Long id);
+    // List<Education> getAllEducationById(Long id);
 
-    Education createEducation(Education education);
+    // Education createEducation(Education education);
 
 }

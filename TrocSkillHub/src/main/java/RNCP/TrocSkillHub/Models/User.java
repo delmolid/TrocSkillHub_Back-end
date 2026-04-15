@@ -225,6 +225,10 @@ public class User {
         this.project = project;
     }
 
+    public void setRole(String role) {
+        this.role = role;
+    }
+
 @Override
 public String toString() {
     return "User{" +

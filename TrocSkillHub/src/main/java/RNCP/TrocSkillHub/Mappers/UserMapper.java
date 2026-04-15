@@ -27,17 +27,15 @@ public interface UserMapper {
 
     ProjectDTO toDTO(Project project);
 
-    // @Mapping(target = "education", ignore = true)
-    // @Mapping(target = "experience", ignore = true)
-    // @Mapping(target = "project", ignore = true)
-    // @Mapping(target = "picture", ignore = true)
-    // @Mapping(target = "createdAt", ignore = true)
-    // @Mapping(target = "updatedAt", ignore = true)
+
     User toEntity(UserDTO userDTO);
+
 
     Education toEntity(EducationDTO educationDTO);
 
+
     Experience toEntity(ExperienceDTO experienceDTO);
+
 
     Project toEntity(ProjectDTO projectDTO);
 

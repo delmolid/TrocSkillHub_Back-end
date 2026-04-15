@@ -59,6 +59,7 @@ public ResponseEntity<?> register(@RequestBody Map<String, String> body, HttpSer
         newUser.setPassword(passwordEncoder.encode(password));
         newUser.setCity(city);
         newUser.setCountry(country);
+        newUser.setRole("USER");
 
         User savedUser = userRepository.save(newUser); // ← récupérer l'utilisateur sauvegardé
 

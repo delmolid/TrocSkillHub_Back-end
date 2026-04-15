@@ -7,10 +7,11 @@ import java.util.Optional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import RNCP.TrocSkillHub.Models.Education;
-import RNCP.TrocSkillHub.Models.Experience;
+
 import RNCP.TrocSkillHub.Models.User;
 import RNCP.TrocSkillHub.Repositories.EducationRepository;
+import RNCP.TrocSkillHub.Repositories.ExperienceRepository;
+import RNCP.TrocSkillHub.Repositories.ProjectRepository;
 import RNCP.TrocSkillHub.Repositories.UserRepository;
 import RNCP.TrocSkillHub.Services.UserService;
 
@@ -19,15 +20,13 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final EducationRepository educationRepository;
 
-    public UserServiceImpl(UserRepository userRepository, EducationRepository educationRepository,
-            PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UserRepository userRepository,
+            PasswordEncoder passwordEncoder, EducationRepository educationRepository,
+            ExperienceRepository experienceRepository, ProjectRepository projectRepository) {
         this.userRepository = userRepository;
-        this.educationRepository = educationRepository;
         this.passwordEncoder = passwordEncoder;
     }
-
     @Override
     public User createUser(User user) {
         // Vérif email
