@@ -2,7 +2,6 @@ package RNCP.TrocSkillHub.Controllers;
 
 import RNCP.TrocSkillHub.DTOs.CategoryDTO;
 import RNCP.TrocSkillHub.Services.CategoryService;
-import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,10 +15,13 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/categories")
-@RequiredArgsConstructor
 public class CategoryController {
     
     private final CategoryService categoryService;
+    
+    public CategoryController(CategoryService categoryService) {
+        this.categoryService = categoryService;
+    }
     
     @GetMapping
     public ResponseEntity<List<CategoryDTO>> getAllCategories() {
@@ -29,7 +31,7 @@ public class CategoryController {
 
     @PostMapping
     public ResponseEntity<CategoryDTO> createCategory(@RequestBody CategoryDTO categoryDTO) {
-    CategoryDTO created = categoryService.createCategory(categoryDTO);
-    return ResponseEntity.status(HttpStatus.CREATED).body(created);
-}
+        CategoryDTO created = categoryService.createCategory(categoryDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    }
 }

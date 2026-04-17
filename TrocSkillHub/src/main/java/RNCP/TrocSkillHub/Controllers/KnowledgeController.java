@@ -2,7 +2,6 @@ package RNCP.TrocSkillHub.Controllers;
 
 import RNCP.TrocSkillHub.DTOs.KnowledgeDTO;
 import RNCP.TrocSkillHub.Services.KnowledgeService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,10 +10,13 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/knowledges")
-@RequiredArgsConstructor
 public class KnowledgeController {
     
     private final KnowledgeService knowledgeService;
+    
+    public KnowledgeController(KnowledgeService knowledgeService) {
+        this.knowledgeService = knowledgeService;
+    }
     
     // GET /api/knowledges - Liste tous les knowledges
     @GetMapping

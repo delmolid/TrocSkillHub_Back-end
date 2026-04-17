@@ -4,19 +4,22 @@ import RNCP.TrocSkillHub.DTOs.KnowledgeDTO;
 import RNCP.TrocSkillHub.Mappers.KnowledgeMapper;
 import RNCP.TrocSkillHub.Models.Knowledge;
 import RNCP.TrocSkillHub.Repositories.KnowledgeRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
-@RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class KnowledgeService {
     
     private final KnowledgeRepository knowledgeRepository;
     private final KnowledgeMapper knowledgeMapper;
+    
+    public KnowledgeService(KnowledgeRepository knowledgeRepository, KnowledgeMapper knowledgeMapper) {
+        this.knowledgeRepository = knowledgeRepository;
+        this.knowledgeMapper = knowledgeMapper;
+    }
     
     // GET ALL
     public List<KnowledgeDTO> getAllKnowledges() {
