@@ -59,7 +59,10 @@ public class UserControllerTest {
             null, 
             null,                   
             null,                   
-            null                    
+            null,
+            null,
+            null,
+            null                 
         );
     }
     // ========== GET ALL USERS ==========

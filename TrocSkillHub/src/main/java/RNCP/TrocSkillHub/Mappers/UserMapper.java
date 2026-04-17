@@ -4,7 +4,13 @@ import java.util.List;
 
 import org.mapstruct.*;
 
+import RNCP.TrocSkillHub.DTOs.EducationDTO;
+import RNCP.TrocSkillHub.DTOs.ExperienceDTO;
+import RNCP.TrocSkillHub.DTOs.ProjectDTO;
 import RNCP.TrocSkillHub.DTOs.UserDTO;
+import RNCP.TrocSkillHub.Models.Education;
+import RNCP.TrocSkillHub.Models.Experience;
+import RNCP.TrocSkillHub.Models.Project;
 import RNCP.TrocSkillHub.Models.User;
 
 @Mapper(
@@ -13,16 +19,21 @@ import RNCP.TrocSkillHub.Models.User;
 )
 
 public interface UserMapper {
-    // Convertit l'entité User en UserDTO
-    UserDTO toDTO(User user); 
+    UserDTO toDTO(User user);
 
-    // Convertit l'UserDTO en entité User
+    EducationDTO toDTO(Education education);
+
+    ExperienceDTO toDTO(Experience experience);
+
+    ProjectDTO toDTO(Project project);
+
     User toEntity(UserDTO userDTO);
 
-    // Convertit une liste d'entité User en liste UserDTO
-    List<UserDTO> toDTOList(List<User> users);
+    Education toEntity(EducationDTO educationDTO);
 
-    // Convertit une liste UserDTO en liste d'entité Users
-    List<User> toEntityList(List<UserDTO> userDTOs);
-    
+    Experience toEntity(ExperienceDTO experienceDTO);
+
+    Project toEntity(ProjectDTO projectDTO);
+
+    List<UserDTO> toDTOList(List<User> users);
 } 

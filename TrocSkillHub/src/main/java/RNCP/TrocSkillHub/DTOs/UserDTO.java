@@ -1,5 +1,7 @@
 package RNCP.TrocSkillHub.DTOs;
 
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public record UserDTO (
@@ -13,5 +15,8 @@ public record UserDTO (
     String city,
     String country,
     String phoneNumber,
-    String description
+        String description,
+        List<EducationDTO> education,
+        List<ExperienceDTO> experience,
+        List<ProjectDTO> project
 ) {}
