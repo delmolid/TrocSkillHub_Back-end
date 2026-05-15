@@ -1,6 +1,6 @@
 # ============================================================
 # CI GITHUB ACTIONS - TROCSKILLHUB
-# ============================================================
+
 
 name: TrocSkillHub CI
 
@@ -58,24 +58,6 @@ jobs:
       - name: Code checkout
         uses: actions/checkout@v5
 
-      - name: Verify required secrets
-        env:
-          POSTGRES_DB: ${{ secrets.POSTGRES_DB_TEST }}
-          POSTGRES_USER: ${{ secrets.POSTGRES_USER_TEST }}
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD_TEST }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          JWT_EXPIRATION: ${{ secrets.JWT_EXPIRATION }}
-        run: |
-          missing=""
-          [ -z "$POSTGRES_DB" ] && missing="$missing POSTGRES_DB_TEST"
-          [ -z "$POSTGRES_USER" ] && missing="$missing POSTGRES_USER_TEST"
-          [ -z "$POSTGRES_PASSWORD" ] && missing="$missing POSTGRES_PASSWORD_TEST"
-          [ -z "$JWT_SECRET" ] && missing="$missing JWT_SECRET"
-          [ -z "$JWT_EXPIRATION" ] && missing="$missing JWT_EXPIRATION"
-          if [ -n "$missing" ]; then
-            echo "::error::Missing or empty secrets:$missing"
-            exit 1
-          fi
 
       - name: Start PostgreSQL
         env:
@@ -116,9 +98,6 @@ jobs:
 
       - name: Tests
         env:
-          POSTGRES_HOST_TEST: localhost
-          POSTGRES_PORT_TEST: "5432"
-          POSTGRES_DB_TEST: ${{ secrets.POSTGRES_DB_TEST }}
           POSTGRES_USER_TEST: ${{ secrets.POSTGRES_USER_TEST }}
           POSTGRES_PASSWORD_TEST: ${{ secrets.POSTGRES_PASSWORD_TEST }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
