@@ -1,13 +1,13 @@
 services:
   postgres-test:
     image: postgres:16
-    container_name: postgres-test
+    container_name: trocskillhubdatabase_test
     environment:
       POSTGRES_DB: ${POSTGRES_DB_TEST}
       POSTGRES_USER: ${POSTGRES_USER_TEST}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD_TEST}
     ports:
-      - "5434:5432"
+      - "${POSTGRES_PORT_TEST}:5432"
     volumes:
       - postgres_test_data:/var/lib/postgresql/data
     networks:
@@ -18,21 +18,6 @@ services:
       timeout: 5s
       retries: 5
 
-  app-test:
-    build: .
-    container_name: spring-boot-test
-    depends_on:
-      postgres-test:
-        condition: service_healthy
-    environment:
-      SPRING_PROFILES_ACTIVE: test
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-test:5432/${POSTGRES_DB_TEST}
-      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER_TEST}
-      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD_TEST}
-    ports:
-      - "8081:8080"
-    networks:
-      - troc-test-network
 
 networks:
   troc-test-network:

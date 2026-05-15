@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5434/trocskillhubdb_test
+    url: ${SPRING_DATASOURCE_URL_TEST}
     username: ${POSTGRES_USER_TEST}
     password: ${POSTGRES_PASSWORD_TEST}
 
