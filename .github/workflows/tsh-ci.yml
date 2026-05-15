@@ -32,6 +32,7 @@ jobs:
     name: Test TrocSkillHub
     runs-on: ubuntu-latest
     needs: build
+    if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository)
     defaults:
       run:
         working-directory: ./TrocSkillHub
@@ -49,6 +50,15 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      - name: Contexte CI (diagnostic sans afficher les secrets)
+        run: |
+          echo "event_name=${{ github.event_name }}"
+          echo "repository=${{ github.repository }}"
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "head_repo=${{ github.event.pull_request.head.repo.full_name }}"
+            echo "Si head_repo ≠ repository → PR depuis un fork → ce job ne devrait pas s'exécuter."
+          fi
+
       - name: Verify secrets (échoue vite si un secret manque)
         run: |
           missing=""
@@ -58,7 +68,9 @@ jobs:
           [ -z "$JWT_SECRET" ] && missing="$missing JWT_SECRET"
           [ -z "$JWT_EXPIRATION" ] && missing="$missing JWT_EXPIRATION"
           if [ -n "$missing" ]; then
-            echo "::error::Secrets vides :$missing — PR depuis un fork ou secrets non définis sur ce dépôt ?"
+            echo "::error::Secrets vides:$missing"
+            echo "Vérifiez : Settings → Secrets and variables → Actions → Repository secrets (onclets Secrets, pas Variables)."
+            echo "Noms exacts : POSTGRES_DB_TEST POSTGRES_USER_TEST POSTGRES_PASSWORD_TEST JWT_SECRET JWT_EXPIRATION"
             exit 1
           fi
 
