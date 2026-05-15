@@ -10,6 +10,5 @@ import lombok.NoArgsConstructor;
 public class KnowledgeDTO {
     private Long id;
     private String name;
-    private String level;
     private Long categoryId;
 }
