@@ -54,24 +54,40 @@ jobs:
       run:
         working-directory: ./TrocSkillHub
 
-    services:
-      postgres:
-        image: postgres:16
+    steps:
+      - name: Code checkout
+        uses: actions/checkout@v5
+
+      - name: Verify required secrets
         env:
           POSTGRES_DB: ${{ secrets.POSTGRES_DB_TEST }}
           POSTGRES_USER: ${{ secrets.POSTGRES_USER_TEST }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD_TEST }}
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd="pg_isready -d trocskillhubdb_test"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
+          SPRING_DATASOURCE_URL_TEST: ${{ secrets.SPRING_DATASOURCE_URL_TEST }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          JWT_EXPIRATION: ${{ secrets.JWT_EXPIRATION }}
+        run: |
+          missing=""
+          [ -z "$POSTGRES_DB" ] && missing="$missing POSTGRES_DB_TEST"
+          [ -z "$POSTGRES_USER" ] && missing="$missing POSTGRES_USER_TEST"
+          [ -z "$POSTGRES_PASSWORD" ] && missing="$missing POSTGRES_PASSWORD_TEST"
+          [ -z "$SPRING_DATASOURCE_URL_TEST" ] && missing="$missing SPRING_DATASOURCE_URL_TEST"
+          [ -z "$JWT_SECRET" ] && missing="$missing JWT_SECRET"
+          [ -z "$JWT_EXPIRATION" ] && missing="$missing JWT_EXPIRATION"
 
-    steps:
-      - name: Code checkout
-        uses: actions/checkout@v5
+      - name: Start PostgreSQL
+        env:
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB_TEST }}
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER_TEST }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD_TEST }}
+        run: |
+          docker run -d --name postgres-test \
+            -p 5432:5432 \
+            -e POSTGRES_DB="$POSTGRES_DB" \
+            -e POSTGRES_USER="$POSTGRES_USER" \
+            -e POSTGRES_PASSWORD="$POSTGRES_PASSWORD" \
+            postgres:16
+
 
       - name: Install Java 21
         uses: actions/setup-java@v5
@@ -88,12 +104,15 @@ jobs:
       - name: Tests
         env:
           SPRING_DATASOURCE_URL_TEST: ${{ secrets.SPRING_DATASOURCE_URL_TEST }}
-          POSTGRES_DB_TEST: trocskillhubdb_test
-          JWT_EXPIRATION: ${{ secrets.JWT_EXPIRATION }}
           POSTGRES_USER_TEST: ${{ secrets.POSTGRES_USER_TEST }}
           POSTGRES_PASSWORD_TEST: ${{ secrets.POSTGRES_PASSWORD_TEST }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          JWT_EXPIRATION: ${{ secrets.JWT_EXPIRATION }}
         run: mvn test
+
+      - name: Stop PostgreSQL
+        if: always()
+        run: docker rm -f postgres-test || true
 
       - name: Upload errors logs
         if: failure()
