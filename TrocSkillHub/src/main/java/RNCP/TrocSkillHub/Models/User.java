@@ -67,6 +67,9 @@ public class User {
     }
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<UserKnowledge> userKnowledge;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Education> education;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
@@ -95,6 +98,7 @@ public class User {
         this.experience = experience;
         this.project = project;
     }
+
     // Getters
     public Long getId() {
         return id;
@@ -146,6 +150,10 @@ public class User {
     public LocalDate getUpdatedAt(){
         return updatedAt;
     }
+
+    public List<UserKnowledge> getUserKnowledge() {
+        return userKnowledge;
+      }
 
     // Setters
     public void setId(Long id) {

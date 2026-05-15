@@ -49,7 +49,6 @@ public class KnowledgeService {
                 .orElseThrow(() -> new RuntimeException("Knowledge not found with id: " + id));
         
         existingKnowledge.setName(knowledgeDTO.getName());
-        existingKnowledge.setLevel(knowledgeDTO.getLevel());
         existingKnowledge.setCategoryId(knowledgeDTO.getCategoryId());
         
         Knowledge updatedKnowledge = knowledgeRepository.save(existingKnowledge);
