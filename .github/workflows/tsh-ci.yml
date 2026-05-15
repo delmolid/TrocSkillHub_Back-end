@@ -1,6 +1,6 @@
 # ============================================================
 # CI GITHUB ACTIONS - TROCSKILLHUB
-# ============================================================
+
 
 name: TrocSkillHub CI
 
@@ -74,6 +74,10 @@ jobs:
           [ -z "$SPRING_DATASOURCE_URL_TEST" ] && missing="$missing SPRING_DATASOURCE_URL_TEST"
           [ -z "$JWT_SECRET" ] && missing="$missing JWT_SECRET"
           [ -z "$JWT_EXPIRATION" ] && missing="$missing JWT_EXPIRATION"
+          if [ -n "$missing" ]; then
+            echo "::error::Missing or empty secrets:$missing"
+            exit 1
+          fi
 
       - name: Start PostgreSQL
         env:
@@ -88,6 +92,17 @@ jobs:
             -e POSTGRES_PASSWORD="$POSTGRES_PASSWORD" \
             postgres:16
 
+          echo "Waiting for PostgreSQL..."
+          for i in $(seq 1 45); do
+            if docker exec postgres-test pg_isready -U "$POSTGRES_USER" -d "$POSTGRES_DB" >/dev/null 2>&1; then
+              echo "PostgreSQL is ready."
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "::error::PostgreSQL did not become ready in time."
+          docker logs postgres-test
+          exit 1
 
       - name: Install Java 21
         uses: actions/setup-java@v5
