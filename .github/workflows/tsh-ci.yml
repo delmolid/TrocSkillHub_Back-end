@@ -21,7 +21,7 @@ jobs:
       - uses: actions/setup-java@v5
         with:
           java-version: '21'
-          distribution: 'temurin'
+          distribution: temurin
       - uses: actions/cache@v4
         with:
           path: ~/.m2/repository
@@ -37,18 +37,30 @@ jobs:
         working-directory: ./TrocSkillHub
 
     env:
-      # Identifiants Postgres (même base que dans application-test.yml)
-      CI_POSTGRES_DB: trocskillhubdb_test
-      CI_POSTGRES_USER: javagolangpyton
-      CI_POSTGRES_PASSWORD: regexgolang
-      # Spring profil test → application-test.yml lit POSTGRES_USER_TEST / POSTGRES_PASSWORD_TEST
-      POSTGRES_USER_TEST: javagolangpyton
-      POSTGRES_PASSWORD_TEST: regexgolang
-      JWT_SECRET: thisIsMysecregtfrdesww233eggtffeeddgkjjhhtdhttebd54ndhdhfhhhshs8877465sbbdm
-      JWT_EXPIRATION: '86400000'
+      CI_POSTGRES_DB: ${{ secrets.POSTGRES_DB_TEST }}
+      CI_POSTGRES_USER: ${{ secrets.POSTGRES_USER_TEST }}
+      CI_POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD_TEST }}
+
+      POSTGRES_USER_TEST: ${{ secrets.POSTGRES_USER_TEST }}
+      POSTGRES_PASSWORD_TEST: ${{ secrets.POSTGRES_PASSWORD_TEST }}
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      JWT_EXPIRATION: ${{ secrets.JWT_EXPIRATION }}
 
     steps:
       - uses: actions/checkout@v5
+
+      - name: Verify secrets (échoue vite si un secret manque)
+        run: |
+          missing=""
+          [ -z "$CI_POSTGRES_DB" ] && missing="$missing POSTGRES_DB_TEST"
+          [ -z "$CI_POSTGRES_USER" ] && missing="$missing POSTGRES_USER_TEST"
+          [ -z "$CI_POSTGRES_PASSWORD" ] && missing="$missing POSTGRES_PASSWORD_TEST"
+          [ -z "$JWT_SECRET" ] && missing="$missing JWT_SECRET"
+          [ -z "$JWT_EXPIRATION" ] && missing="$missing JWT_EXPIRATION"
+          if [ -n "$missing" ]; then
+            echo "::error::Secrets vides :$missing — PR depuis un fork ou secrets non définis sur ce dépôt ?"
+            exit 1
+          fi
 
       - name: Start PostgreSQL
         run: |
@@ -72,7 +84,7 @@ jobs:
       - uses: actions/setup-java@v5
         with:
           java-version: '21'
-          distribution: 'temurin'
+          distribution: temurin
 
       - uses: actions/cache@v4
         with:
