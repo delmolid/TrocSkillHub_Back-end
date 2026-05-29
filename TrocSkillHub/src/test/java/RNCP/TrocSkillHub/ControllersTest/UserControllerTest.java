@@ -2,6 +2,7 @@ package RNCP.TrocSkillHub.ControllersTest;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.description;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
@@ -54,17 +55,16 @@ public class UserControllerTest {
         userRequestDTO = new UserRequestDTO(
             "John", "Doe",
             "test@example.com",
-            "Password1!",  null, null, null, null, null, null
+            "Password1!", null, null, null, null, null,null,null,null,null
+        
         );
         userResponseDTO = new UserResponseDTO(
             "jean", "ali", "test@example.com",
             "test",
          null, null, null,
-            null, null, null, null
+            null, null, null, null, null,null
         );
     }
-
-    // ========== GET ALL USERS ==========
 
     @Test
     @DisplayName("getAllUsers - Should return a list of users")
@@ -96,8 +96,6 @@ public class UserControllerTest {
         assertThat(response.getBody()).isEmpty();
     }
 
-    // ========== GET USER BY ID ==========
-
     @Test
     @DisplayName("getUserById - should return user when user exists")
     void getUserById_shouldReturnUser_whenUserExists() {
@@ -119,8 +117,6 @@ public class UserControllerTest {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
-
-    // ========== CREATE USER ==========
 
     @Test
     @DisplayName("createUser - should create user successfully")
@@ -147,8 +143,6 @@ public class UserControllerTest {
         assertThat(response.getBody().toString()).contains("Erreur");
     }
 
-    // ========== UPDATE USER ==========
-
     @Test
     @DisplayName("updateUser - should update user successfully")
     void updateUser_shouldUpdateUser_successfully() {
@@ -173,8 +167,6 @@ public class UserControllerTest {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
-
-    // ========== DELETE USER ==========
 
     @Test
     @DisplayName("deleteUser - should delete user successfully")

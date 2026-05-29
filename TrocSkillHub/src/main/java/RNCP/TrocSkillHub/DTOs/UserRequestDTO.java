@@ -12,5 +12,8 @@ public record UserRequestDTO(
     String phoneNumber,
     String description,
     List<UserKnowledgeDTO> skills,
-    List<UserKnowledgeDTO> needs
+    List<UserKnowledgeDTO> needs,
+    List<EducationDTO>education,
+    List<ExperienceDTO>experience,
+    List<ProjectDTO>projet
 ) {}
