@@ -1,8 +1,9 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5434/trocskillhubdb_test
-    username: ${POSTGRES_USER_TEST}
-    password: ${POSTGRES_PASSWORD_TEST}
+   
+    url: jdbc:postgresql://localhost:5432/trocskillhubdb_test
+    username: ${POSTGRES_USER_TEST:test}
+    password: ${POSTGRES_PASSWORD_TEST:test}
 
  
   jpa:
@@ -23,3 +24,8 @@ spring:
 logging:
   level:
     org.springframework.security: DEBUG
+
+
+jwt:
+  secret: ${JWT_SECRET:test-jwt-secret-ci-only-needs-minimum-32-chars-for-hs256}
+  expiration: ${JWT_EXPIRATION:86400000}
