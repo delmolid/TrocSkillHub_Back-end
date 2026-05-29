@@ -29,12 +29,11 @@ import jakarta.servlet.http.Cookie;
 @Testcontainers
 class UsersApiIntegrationTest {
 
-    @Container
+    @SuppressWarnings("resource")
+	@Container
     static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>(DockerImageName.parse("postgres:16-alpine"))
-            .withDatabaseName("trocskillhubdb_test")
-            .withUsername("test")
-            .withPassword("test");
-
+            .withDatabaseName("trocskillhubdb_test");
+          
     @DynamicPropertySource
     static void registerDataSource(DynamicPropertyRegistry registry) {
         registry.add("spring.datasource.url", postgres::getJdbcUrl);
