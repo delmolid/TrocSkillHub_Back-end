@@ -34,3 +34,6 @@ build/
 
 ### variables d'environnement ###
 .env
+
+### computer cache 
+**/.DS_Store

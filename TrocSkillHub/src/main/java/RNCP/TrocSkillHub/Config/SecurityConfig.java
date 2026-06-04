@@ -4,11 +4,13 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import RNCP.TrocSkillHub.Services.ImplServices.CustomUserDetailsService;
 
@@ -16,40 +18,50 @@ import RNCP.TrocSkillHub.Services.ImplServices.CustomUserDetailsService;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private final CustomUserDetailsService customUserDetailsService;
-    private final PasswordEncoder passwordEncoder;
+    private final JwtAuthFIlter jwtAuthFilter;
 
-    public SecurityConfig(CustomUserDetailsService customUserDetailsService, PasswordEncoder passwordEncoder) {
-        this.customUserDetailsService = customUserDetailsService;
-        this.passwordEncoder = passwordEncoder;
+    public SecurityConfig(CustomUserDetailsService customUserDetailsService, PasswordEncoder passwordEncoder, JwtAuthFIlter jwtAuthFilter) {
+        this.jwtAuthFilter = jwtAuthFilter;
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
-        AuthenticationManagerBuilder authenticationManagerBuilder = http
-                .getSharedObject(AuthenticationManagerBuilder.class);
-        authenticationManagerBuilder
-                .userDetailsService(customUserDetailsService)
-                .passwordEncoder(passwordEncoder);
-        return authenticationManagerBuilder.build();
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.ignoringRequestMatchers("/api/**"))
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
+           
+                // Endpoints d'authentification (publics)
+                .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/auth/register").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/auth/logout").permitAll()
+
+                // Endpoints catégories (publics)
+                .requestMatchers(HttpMethod.GET, "/api/categories").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/categories").permitAll()
+            
+                // Endpoints knowledges
+                .requestMatchers(HttpMethod.GET, "/api/knowledges").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/knowledges/{id}").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/knowledges").authenticated()
+                .requestMatchers(HttpMethod.PUT, "/api/knowledges/{id}").authenticated()
+                .requestMatchers(HttpMethod.DELETE, "/api/knowledges/{id}").authenticated()
+            
+                // Endpoints users (authentifiés)
+                .requestMatchers(HttpMethod.POST, "/api/users").authenticated()
                 .requestMatchers(HttpMethod.GET, "/api/users").authenticated()
+                .requestMatchers(HttpMethod.GET, "/api/users/{id}").authenticated()
+                .requestMatchers(HttpMethod.GET, "/api/auth/me").authenticated()
+
+                // Tous les autres endpoints nécessitent une authentification
                 .anyRequest().authenticated()
             )
-            .formLogin(form -> form
-                .usernameParameter("email")
-                .failureHandler((request, response, exception) -> {
-                    response.sendError(401, "Email ou mot de passe incorrect");
-                })
-                .permitAll()
-            );
+            .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

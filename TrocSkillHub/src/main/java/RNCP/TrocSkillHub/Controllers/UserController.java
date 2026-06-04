@@ -1,7 +1,5 @@
 package RNCP.TrocSkillHub.Controllers;
-
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,78 +9,64 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import RNCP.TrocSkillHub.DTOs.UserDTO;
-import RNCP.TrocSkillHub.Mappers.UserMapper;
-import RNCP.TrocSkillHub.Models.User;
-import RNCP.TrocSkillHub.Services.UserService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
-
-
+import RNCP.TrocSkillHub.DTOs.UserRequestDTO;
+import RNCP.TrocSkillHub.DTOs.UserResponseDTO;
+import RNCP.TrocSkillHub.Mappers.UserMapper;
+import RNCP.TrocSkillHub.Models.User;
+import RNCP.TrocSkillHub.Services.UserService;
 @RestController
 @RequestMapping("/api/users")
 @CrossOrigin(origins = "http://localhost:5173")
 public class UserController {
-
-    
     private final UserService userService;
     private final UserMapper userMapper;
-
     @Autowired
-    public UserController (UserService userService, UserMapper userMapper) {
+    public UserController(UserService userService, UserMapper userMapper) {
         this.userService = userService;
         this.userMapper = userMapper;
     }
-
-    // Récuperer tous les utilisateurs 
-     @GetMapping
-    public ResponseEntity<List<UserDTO>> getAllUsers() {
+    // GET tous les utilisateurs
+    @GetMapping
+    public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
         List<User> users = userService.getAllUsers();
-        List<UserDTO> userDTOs = userMapper.toDTOList(users);
+        List<UserResponseDTO> userDTOs = userMapper.toResponseDTOList(users);
         return ResponseEntity.ok(userDTOs);
     }
-
-    // Récuperer les données utilisateur à partir d'un id
+    // GET utilisateur par id
     @GetMapping("/{id}")
     public ResponseEntity<?> getUserById(@PathVariable Long id) {
         return userService.getUserById(id)
-                .map(user -> ResponseEntity.ok(userMapper.toDTO(user)))
-                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(null));
+                .map(user -> ResponseEntity.ok(userMapper.toResponseDTO(user)))
+                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
     }
-
-    
-    // Créer un utilisateur
+    // POST créer un utilisateur
     @PostMapping
-    public ResponseEntity<?> createUser(@RequestBody UserDTO userDTO) {
+    public ResponseEntity<?> createUser(@RequestBody UserRequestDTO requestDTO) {
         try {
-            User user = userMapper.toEntity(userDTO);
+            User user = userMapper.toEntity(requestDTO);
             User createdUser = userService.createUser(user);
-            UserDTO responseDTO = userMapper.toDTO(createdUser);
-            return new ResponseEntity<>(responseDTO, HttpStatus.CREATED);
+            return new ResponseEntity<>(userMapper.toResponseDTO(createdUser), HttpStatus.CREATED);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body("Erreur: " + e.getMessage());
         }
     }
-
-    // Mettre à jour les données d'un utilisateur
+    // PUT mettre à jour un utilisateur
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody UserDTO userDTO) {
+    public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody UserRequestDTO requestDTO) {
         try {
-            User user = userMapper.toEntity(userDTO);
+            User user = userMapper.toEntity(requestDTO);
             User updatedUser = userService.updateUser(id, user);
-            UserDTO responseDTO = userMapper.toDTO(updatedUser);
-            return ResponseEntity.ok(responseDTO);
+            return ResponseEntity.ok(userMapper.toResponseDTO(updatedUser));
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body("Erreur: " + e.getMessage());
         }
     }
-
-    // Supprimer un utilisateur
+    // DELETE supprimer un utilisateur
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable Long id) {
         try {
@@ -93,7 +77,4 @@ public class UserController {
                     .body("Erreur: " + e.getMessage());
         }
     }
-
-
-
 }

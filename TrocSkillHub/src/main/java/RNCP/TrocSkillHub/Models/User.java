@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 
 import java.sql.Types;
 import java.time.LocalDate;
+import java.util.List;
 
 import org.hibernate.annotations.JdbcTypeCode;
 
@@ -40,7 +41,7 @@ public class User {
     @Column(nullable = true)
     private String city;
     
-    @Column(name = "Country", nullable = true)
+    @Column(name = "country", nullable = true)
     private String country;
     
     @Column(name = "phone_number", nullable = true)
@@ -64,12 +65,26 @@ public class User {
     protected void onUpdate() {
         this.updatedAt = LocalDate.now();
     }
-    
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<UserKnowledge> userKnowledge;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Education> education;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Experience> experience;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Project> project;
+
     // Constructeur
     public User() {
     }
 
-    public User(String firstName,String lastName,String address,String country,String city,String phoneNumber, String email, byte[] picture) {
+    public User(String firstName, String lastName, String address, String country, String city, String phoneNumber,
+            String email, byte[] picture, List<Education> education, List<Experience> experience,
+            List<Project> project) {
        
         this.firstName = firstName;
         this.lastName = lastName;
@@ -79,7 +94,11 @@ public class User {
         this.phoneNumber = phoneNumber;
         this.email = email;
         this.picture = picture;
+        this.education = education;
+        this.experience = experience;
+        this.project = project;
     }
+
     // Getters
     public Long getId() {
         return id;
@@ -131,6 +150,10 @@ public class User {
     public LocalDate getUpdatedAt(){
         return updatedAt;
     }
+
+    public List<UserKnowledge> getUserKnowledge() {
+        return userKnowledge;
+      }
 
     // Setters
     public void setId(Long id) {
@@ -184,6 +207,7 @@ public class User {
     public void setUpdatedAt(LocalDate updateAt){
         this.updatedAt = updateAt;
     }
+
 @Override
 public String toString() {
     return "User{" +
