@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 
 import java.sql.Types;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.annotations.JdbcTypeCode;
@@ -66,19 +67,19 @@ public class User {
         this.updatedAt = LocalDate.now();
     }
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<UserKnowledge> userKnowledge;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserKnowledge> userKnowledge = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Education> education;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Education> education = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Experience> experience;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Experience> experience = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Project> project;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Project> project = new ArrayList<>();
 
-    // Constructeur
+
     public User() {
     }
 
@@ -99,7 +100,6 @@ public class User {
         this.project = project;
     }
 
-    // Getters
     public Long getId() {
         return id;
     }
@@ -155,7 +155,18 @@ public class User {
         return userKnowledge;
       }
 
-    // Setters
+    public List<Education> getEducation() {
+        return education;
+    }
+
+    public List<Experience> getExperience() {
+        return experience;
+    }
+
+    public List<Project> getProject() {
+        return project;
+    }
+
     public void setId(Long id) {
         this.id = id;
     }
@@ -206,6 +217,22 @@ public class User {
     
     public void setUpdatedAt(LocalDate updateAt){
         this.updatedAt = updateAt;
+    }
+
+    public void setUserKnowledge(List<UserKnowledge> userKnowledge) {
+        this.userKnowledge = userKnowledge;
+    }
+
+    public void setEducation(List<Education> education) {
+        this.education = education;
+    }
+
+    public void setExperience(List<Experience> experience) {
+        this.experience = experience;
+    }
+
+    public void setProject(List<Project> project) {
+        this.project = project;
     }
 
 @Override

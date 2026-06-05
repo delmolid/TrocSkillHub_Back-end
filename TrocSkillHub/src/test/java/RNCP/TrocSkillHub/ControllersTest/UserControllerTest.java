@@ -55,8 +55,9 @@ public class UserControllerTest {
         userRequestDTO = new UserRequestDTO(
             "John", "Doe",
             "test@example.com",
-            "Password1!", null, null, null, null, null,null,null,null,null
-        
+            null, null, null, null, null,
+            null, null, null, null, null,
+            null
         );
         userResponseDTO = new UserResponseDTO(
             "jean", "ali", "test@example.com",
@@ -146,8 +147,7 @@ public class UserControllerTest {
     @Test
     @DisplayName("updateUser - should update user successfully")
     void updateUser_shouldUpdateUser_successfully() {
-        when(userMapper.toEntity(userRequestDTO)).thenReturn(user);
-        when(userService.updateUser(eq(1L), any(User.class))).thenReturn(user);
+        when(userService.updateUser(eq(1L), eq(userRequestDTO))).thenReturn(user);
         when(userMapper.toResponseDTO(user)).thenReturn(userResponseDTO);
 
         ResponseEntity<?> response = userController.updateUser(1L, userRequestDTO);
@@ -159,11 +159,33 @@ public class UserControllerTest {
     @Test
     @DisplayName("updateUser - should return 404 when user Not Found")
     void updateUser_shouldReturn404_whenUserNotFound() {
-        when(userMapper.toEntity(userRequestDTO)).thenReturn(user);
-        when(userService.updateUser(eq(99L), any(User.class)))
+        when(userService.updateUser(eq(99L), eq(userRequestDTO)))
                 .thenThrow(new RuntimeException("Utilisateur non trouvé"));
 
         ResponseEntity<?> response = userController.updateUser(99L, userRequestDTO);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    @DisplayName("patchUser - should patch user successfully")
+    void patchUser_shouldPatchUser_successfully() {
+        when(userService.patchUser(eq(1L), eq(userRequestDTO))).thenReturn(user);
+        when(userMapper.toResponseDTO(user)).thenReturn(userResponseDTO);
+
+        ResponseEntity<?> response = userController.patchUser(1L, userRequestDTO);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).isEqualTo(userResponseDTO);
+    }
+
+    @Test
+    @DisplayName("patchUser - should return 404 when user Not Found")
+    void patchUser_shouldReturn404_whenUserNotFound() {
+        when(userService.patchUser(eq(99L), eq(userRequestDTO)))
+                .thenThrow(new RuntimeException("Utilisateur non trouvé"));
+
+        ResponseEntity<?> response = userController.patchUser(99L, userRequestDTO);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
