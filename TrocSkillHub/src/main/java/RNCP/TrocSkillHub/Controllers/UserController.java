@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,21 +29,18 @@ public class UserController {
         this.userService = userService;
         this.userMapper = userMapper;
     }
-    // GET tous les utilisateurs
     @GetMapping
     public ResponseEntity<List<UserResponseDTO>> getAllUsers() {
         List<User> users = userService.getAllUsers();
         List<UserResponseDTO> userDTOs = userMapper.toResponseDTOList(users);
         return ResponseEntity.ok(userDTOs);
     }
-    // GET utilisateur par id
     @GetMapping("/{id}")
     public ResponseEntity<?> getUserById(@PathVariable Long id) {
         return userService.getUserById(id)
                 .map(user -> ResponseEntity.ok(userMapper.toResponseDTO(user)))
                 .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
     }
-    // POST créer un utilisateur
     @PostMapping
     public ResponseEntity<?> createUser(@RequestBody UserRequestDTO requestDTO) {
         try {
@@ -54,19 +52,24 @@ public class UserController {
                     .body("Erreur: " + e.getMessage());
         }
     }
-    // PUT mettre à jour un utilisateur
     @PutMapping("/{id}")
     public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody UserRequestDTO requestDTO) {
         try {
-            User user = userMapper.toEntity(requestDTO);
-            User updatedUser = userService.updateUser(id, user);
+            User updatedUser = userService.updateUser(id, requestDTO);
             return ResponseEntity.ok(userMapper.toResponseDTO(updatedUser));
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("Erreur: " + e.getMessage());
+            return handleUpdateError(e);
         }
     }
-    // DELETE supprimer un utilisateur
+    @PatchMapping("/{id}")
+    public ResponseEntity<?> patchUser(@PathVariable Long id, @RequestBody UserRequestDTO requestDTO) {
+        try {
+            User updatedUser = userService.patchUser(id, requestDTO);
+            return ResponseEntity.ok(userMapper.toResponseDTO(updatedUser));
+        } catch (RuntimeException e) {
+            return handleUpdateError(e);
+        }
+    }
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable Long id) {
         try {
@@ -76,5 +79,21 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body("Erreur: " + e.getMessage());
         }
+    }
+
+    private ResponseEntity<?> handleUpdateError(RuntimeException e) {
+        String message = e.getMessage() != null ? e.getMessage() : "";
+        if (message.contains("existe déjà")) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body("Erreur: " + message);
+        }
+        if (message.contains("mot de passe")
+                || message.contains("Connaissance")
+                || message.contains("knowledgeId")) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Erreur: " + message);
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body("Erreur: " + message);
     }
 }
