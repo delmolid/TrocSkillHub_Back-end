@@ -23,19 +23,26 @@ import RNCP.TrocSkillHub.Models.UserKnowledge;
     unmappedTargetPolicy = ReportingPolicy.IGNORE
 )
 public interface UserMapper {
-    // User → UserResponseDTO (GET)
     @Mapping(target = "skills", expression = "java(mapSkills(user.getUserKnowledge()))")
     @Mapping(target = "needs",  expression = "java(mapNeeds(user.getUserKnowledge()))")
+    @Mapping(target = "education", source = "education")
+    @Mapping(target = "experience", source = "experience")
+    @Mapping(target = "project", source = "project")
     UserResponseDTO toResponseDTO(User user);
-    // UserRequestDTO → User (POST / PUT)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "userKnowledge", ignore = true)
+    @Mapping(target = "education", ignore = true)
+    @Mapping(target = "experience", ignore = true)
+    @Mapping(target = "project", ignore = true)
+    @Mapping(target = "picture", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
     User toEntity(UserRequestDTO requestDTO);
-    // UserKnowledge → UserKnowledgeDTO
     @Mapping(source = "knowledge.id",   target = "knowledgeId")
     @Mapping(source = "knowledge.name", target = "knowledgeName")
     @Mapping(source = "type",           target = "type")
     @Mapping(source = "level",          target = "level")
     UserKnowledgeDTO toUserKnowledgeDTO(UserKnowledge userKnowledge);
-    // Filtrage par type
     default List<UserKnowledgeDTO> mapSkills(List<UserKnowledge> list) {
         if (list == null) return List.of();
         return list.stream()
@@ -56,8 +63,14 @@ public interface UserMapper {
     EducationDTO toDTO(Education education);
     ExperienceDTO toDTO(Experience experience);
     ProjectDTO toDTO(Project project);
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "user", ignore = true)
     Education toEntity(EducationDTO educationDTO);
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "user", ignore = true)
     Experience toEntity(ExperienceDTO experienceDTO);
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "user", ignore = true)
     Project toEntity(ProjectDTO projectDTO);
     List<UserResponseDTO> toResponseDTOList(List<User> users);
 }
