@@ -1,4 +1,4 @@
-package RNCP.TrocSkillHub.Services;
+package RNCP.TrocSkillHub.Services.ImplServices;
 
 import RNCP.TrocSkillHub.DTOs.CategoryDTO;
 import RNCP.TrocSkillHub.Mappers.CategoryMapper;
@@ -12,15 +12,15 @@ import java.util.List;
 @Service
 @Transactional(readOnly = true)
 public class CategoryService {
-    
+
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
-    
+
     public CategoryService(CategoryRepository categoryRepository, CategoryMapper categoryMapper) {
         this.categoryRepository = categoryRepository;
         this.categoryMapper = categoryMapper;
     }
-    
+
     public List<CategoryDTO> getAllCategories() {
         List<Category> categories = categoryRepository.findAll();
         return categoryMapper.toDTOList(categories);
