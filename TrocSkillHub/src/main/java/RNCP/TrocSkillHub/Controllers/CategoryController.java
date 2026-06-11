@@ -1,7 +1,7 @@
 package RNCP.TrocSkillHub.Controllers;
 
 import RNCP.TrocSkillHub.DTOs.CategoryDTO;
-import RNCP.TrocSkillHub.Services.CategoryService;
+import RNCP.TrocSkillHub.Services.ImplServices.CategoryService;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
