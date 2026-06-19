@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/knowledges")
+@RequestMapping("/knowledges")
 public class KnowledgeController {
     
     private final KnowledgeService knowledgeService;
@@ -18,28 +18,28 @@ public class KnowledgeController {
         this.knowledgeService = knowledgeService;
     }
     
-    // GET /api/knowledges - Liste tous les knowledges
+    // GET /knowledges - Liste tous les knowledges
     @GetMapping
     public ResponseEntity<List<KnowledgeDTO>> getAllKnowledges() {
         List<KnowledgeDTO> knowledges = knowledgeService.getAllKnowledges();
         return ResponseEntity.ok(knowledges);
     }
     
-    // GET /api/knowledges/{id} - Récupère un knowledge par son ID
+    // GET /knowledges/{id} - Récupère un knowledge par son ID
     @GetMapping("/{id}")
     public ResponseEntity<KnowledgeDTO> getKnowledgeById(@PathVariable Long id) {
         KnowledgeDTO knowledge = knowledgeService.getKnowledgeById(id);
         return ResponseEntity.ok(knowledge);
     }
     
-    // POST /api/knowledges - Crée un nouveau knowledge
+    // POST /knowledges - Crée un nouveau knowledge
     @PostMapping
     public ResponseEntity<KnowledgeDTO> createKnowledge(@RequestBody KnowledgeDTO knowledgeDTO) {
         KnowledgeDTO created = knowledgeService.createKnowledge(knowledgeDTO);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
     
-    // PUT /api/knowledges/{id} - Met à jour un knowledge existant
+    // PUT /knowledges/{id} - Met à jour un knowledge existant
     @PutMapping("/{id}")
     public ResponseEntity<KnowledgeDTO> updateKnowledge(
             @PathVariable Long id, 
@@ -48,7 +48,7 @@ public class KnowledgeController {
         return ResponseEntity.ok(updated);
     }
     
-    // DELETE /api/knowledges/{id} - Supprime un knowledge
+    // DELETE /knowledges/{id} - Supprime un knowledge
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteKnowledge(@PathVariable Long id) {
         knowledgeService.deleteKnowledge(id);

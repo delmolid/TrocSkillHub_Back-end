@@ -49,7 +49,7 @@ class UsersApiIntegrationTest {
     @BeforeEach
     void setUp() throws Exception {
     
-        mockMvc.perform(post("/api/auth/register")
+        mockMvc.perform(post("/auth/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                     {
@@ -62,7 +62,7 @@ class UsersApiIntegrationTest {
                     }
                     """));
 
-        MvcResult loginResult = mockMvc.perform(post("/api/auth/login")
+        MvcResult loginResult = mockMvc.perform(post("/auth/login")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("""
                     {
@@ -78,7 +78,7 @@ class UsersApiIntegrationTest {
 
     @Test
     void getAllUsers_withJwt_returnsUsersWithNames() throws Exception {
-        MvcResult result = mockMvc.perform(get("/api/users").cookie(jwtCookie))
+        MvcResult result = mockMvc.perform(get("/users").cookie(jwtCookie))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$[?(@.email == 'jean.dupont@test.fr')].firstName").value("Jean"))
@@ -86,12 +86,12 @@ class UsersApiIntegrationTest {
                 .andReturn();
     
        
-        System.out.println("Réponse GET /api/users :\n" + result.getResponse().getContentAsString());
+        System.out.println("Réponse GET /users :\n" + result.getResponse().getContentAsString());
     }
 
     @Test
     void getAllUsers_withoutJwt_returns403() throws Exception {
-        mockMvc.perform(get("/api/users"))
+        mockMvc.perform(get("/users"))
                 .andExpect(status().isForbidden());
             
                 

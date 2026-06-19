@@ -19,7 +19,7 @@ import RNCP.TrocSkillHub.Mappers.UserMapper;
 import RNCP.TrocSkillHub.Models.User;
 import RNCP.TrocSkillHub.Services.UserService;
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/users")
 @CrossOrigin(origins = "http://localhost:5173")
 public class UserController {
     private final UserService userService;
