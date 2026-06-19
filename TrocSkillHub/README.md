@@ -112,23 +112,23 @@ src/
 
 | Méthode | Endpoint | Description | Corps de requête | Réponse |
 |---------|----------|-------------|------------------|---------|
-| GET | `/api/users` | Liste tous les utilisateurs | - | `200` : Liste de UserDTO |
-| GET | `/api/users/{id}` | Récupère un utilisateur | - | `200` : UserDTO / `404` |
-| POST | `/api/users` | Crée un utilisateur | UserDTO | `201` : UserDTO / `409` |
-| PUT | `/api/users/{id}` | Met à jour un utilisateur | UserDTO | `200` : UserDTO / `404` |
-| DELETE | `/api/users/{id}` | Supprime un utilisateur | - | `200` / `404` |
+| GET | `/users` | Liste tous les utilisateurs | - | `200` : Liste de UserDTO |
+| GET | `/users/{id}` | Récupère un utilisateur | - | `200` : UserDTO / `404` |
+| POST | `/users` | Crée un utilisateur | UserDTO | `201` : UserDTO / `409` |
+| PUT | `/users/{id}` | Met à jour un utilisateur | UserDTO | `200` : UserDTO / `404` |
+| DELETE | `/users/{id}` | Supprime un utilisateur | - | `200` / `404` |
 
 ### Exemples de requêtes
 
 **Récupérer tous les utilisateurs**
 ```bash
-curl http://localhost:8080/api/users
+curl http://localhost:8080/users
 ```
 
 
 **Récupérer un utilisateur par ID**
 ```bash
-curl http://localhost:8080/api/users/1
+curl http://localhost:8080/users/1
 ```
 
 Réponse :
@@ -151,13 +151,13 @@ Réponse :
 **Créer un utilisateur**
 exemple compe user pour le dev
 ```bash
-curl -X POST http://localhost:8080/api/users \
+curl -X POST http://localhost:8080/users \
   -H "Content-Type: application/json; charset=utf-8" \
   -d '{"firstName":"Admin","lastName":"Dev","email":"admin@admin.fr","password":"Adminadmin12@","address":"1 rue Admin","city":"Paris","country":"France","phoneNumber":"+33 1 00 00 00 00","description":"Compte admin dev"}'
 ```
 
 ```bash
-curl -X POST http://localhost:8080/api/users \
+curl -X POST http://localhost:8080/users \
   -H "Content-Type: application/json; charset=utf-8" \
   -d '{"firstName":"Marie","lastName":"Curie","picture":null,"email":"marie.curie@example.fr","password":"MonMotDePasse123","address":"12 rue de la Science","city":"Paris","country":"France","phoneNumber":"+33 6 98 76 54 32","description":"Passionnee de physique et chimie."}'
 ```
@@ -182,7 +182,7 @@ Réponse (201 Created) :
 
 **Mettre à jour un utilisateur**
 ```bash
-curl -X PUT http://localhost:8080/api/users/5 \
+curl -X PUT http://localhost:8080/users/5 \
   -H "Content-Type: application/json; charset=utf-8" \
   -d '{"firstName":"Marie","lastName":"Curie-Sklodowska","picture":null,"email":"marie.curie@example.fr","password":"NouveauMotDePasse456","address":"15 rue Pierre et Marie Curie","city":"Paris","country":"France","phoneNumber":"+33 6 98 76 54 32","description":"Physicienne et chimiste, double prix Nobel."}'
 ```
@@ -205,7 +205,7 @@ Réponse (200 OK) :
 
 **Supprimer un utilisateur**
 ```bash
-curl -X DELETE http://localhost:8080/api/users/5
+curl -X DELETE http://localhost:8080/users/5
 ```
 
 Réponse (200 OK) :
@@ -215,12 +215,12 @@ Utilisateur supprimé avec succès
 
 **Rechercher par ville**
 ```bash
-curl http://localhost:8080/api/users/city/Paris
+curl http://localhost:8080/users/city/Paris
 ```
 
 **Rechercher par pays**
 ```bash
-curl http://localhost:8080/api/users/country/France
+curl http://localhost:8080/users/country/France
 ```
 
 ### Structure UserDTO
