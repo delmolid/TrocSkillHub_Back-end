@@ -32,6 +32,8 @@ jobs:
 
   test:
     name: Test TrocSkillHub
+    env:
+          CORS_ALLOWED_ORIGINS: ${{ secrets.CORS_ALLOWED_ORIGINS }}
     runs-on: ubuntu-latest
     needs: build
     defaults:
