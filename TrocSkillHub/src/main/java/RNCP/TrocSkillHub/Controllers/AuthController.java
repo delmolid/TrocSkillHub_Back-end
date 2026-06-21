@@ -1,5 +1,6 @@
 package RNCP.TrocSkillHub.Controllers;
 
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -15,6 +16,8 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import org.springframework.http.HttpHeaders;
+import java.time.Duration;
 import java.util.Map;
 
 @RestController
@@ -60,19 +63,21 @@ public ResponseEntity<?> register(@RequestBody Map<String, String> body, HttpSer
         newUser.setCity(city);
         newUser.setCountry(country);
 
-        User savedUser = userRepository.save(newUser); // ← récupérer l'utilisateur sauvegardé
+        User savedUser = userRepository.save(newUser); 
 
-        // ← Générer le JWT et le mettre dans un cookie
+    
         String token = jwtService.generateToken(email);
-        Cookie cookie = new Cookie("jwt", token);
-        cookie.setHttpOnly(true); // ← true pour la sécurité
-        cookie.setPath("/");
-        cookie.setMaxAge(86400);
-        response.addCookie(cookie);
+        ResponseCookie.from("jwt", token)
+            .httpOnly(true)
+            .secure(true)
+            .path("/")
+            .maxAge(Duration.ofMinutes(5))
+            .sameSite("None")
+            .build();
 
         return ResponseEntity.ok(Map.of(
                 "message", "Inscription réussie",
-                "id", savedUser.getId() // ← retourner l'ID
+                "id", savedUser.getId() 
         ));
 
     } catch (Exception e) {
@@ -81,30 +86,32 @@ public ResponseEntity<?> register(@RequestBody Map<String, String> body, HttpSer
                 .body(Map.of("error", "Erreur lors de l'inscription"));
     }
 }
-
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> body, HttpServletResponse response) {
         String email = body.get("email");
         String password = body.get("password");
-
+    
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(email, password));
-
+    
             String token = jwtService.generateToken(email);
-
-            Cookie cookie = new Cookie("jwt", token);
-            cookie.setHttpOnly(false);
-            cookie.setPath("/");
-            cookie.setMaxAge(86400);
-
-            response.addCookie(cookie);
-
-            return ResponseEntity.ok(Map.of("message", "Connexion réussie"));
-
+    
+            ResponseCookie cookie = ResponseCookie.from("jwt", token)
+                    .httpOnly(true)
+                    .secure(true)
+                    .path("/")
+                    .maxAge(Duration.ofDays(1))
+                    .sameSite("None")
+                    .build();
+    
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                    .body(Map.of("message", "Connexion réussie"));
+    
         } catch (AuthenticationException e) {
             return ResponseEntity.status(401)
-                .body(Map.of("error", "Email ou mot de passe incorrect"));
+                    .body(Map.of("error", "Email ou mot de passe incorrect"));
         }
     }
 
@@ -121,7 +128,7 @@ public ResponseEntity<?> register(@RequestBody Map<String, String> body, HttpSer
     @GetMapping("/me")
     public ResponseEntity<?> getCurrentUser(HttpServletRequest request) {
         try {
-            // Récupère le token JWT depuis le cookie
+         
             String token = null;
             
             if (request.getCookies() != null) {
@@ -138,14 +145,14 @@ public ResponseEntity<?> register(@RequestBody Map<String, String> body, HttpSer
                     .body(Map.of("error", "Non authentifié"));
             }
             
-            // Extrait l'email depuis le token
+        
             String email = jwtService.extractEmail(token);
             
-            // Récupère l'utilisateur depuis la base de données
+ 
             User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
             
-            // Retourne les informations de l'utilisateur (sans le mot de passe !)
+           
             return ResponseEntity.ok(Map.of(
                 "id", user.getId(),
                 "firstName", user.getFirstName(),
