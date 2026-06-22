@@ -77,7 +77,8 @@ public ResponseEntity<?> register(@RequestBody Map<String, String> body, HttpSer
 
         return ResponseEntity.ok(Map.of(
                 "message", "Inscription réussie",
-                "id", savedUser.getId() 
+                "id", savedUser.getId(),
+                "token", token
         ));
 
     } catch (Exception e) {
@@ -107,7 +108,9 @@ public ResponseEntity<?> register(@RequestBody Map<String, String> body, HttpSer
     
             return ResponseEntity.ok()
                     .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                    .body(Map.of("message", "Connexion réussie"));
+                    .body(Map.of("message", "Connexion réussie",
+                        "token", token
+                    ));
     
         } catch (AuthenticationException e) {
             return ResponseEntity.status(401)

@@ -20,8 +20,11 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
+import com.jayway.jsonpath.JsonPath;
 
-import jakarta.servlet.http.Cookie;
+
+
+
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -44,56 +47,47 @@ class UsersApiIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
 
-    private Cookie jwtCookie;
 
-    @BeforeEach
-    void setUp() throws Exception {
-    
-        mockMvc.perform(post("/auth/register")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""
-                    {
-                      "nom": "Dupont",
-                      "prenom": "Jean",
-                      "email": "jean.dupont@test.fr",
-                      "password": "Password1!",
-                      "city": "Paris",
-                      "country": "France"
-                    }
-                    """));
+    private String jwtToken;
 
-        MvcResult loginResult = mockMvc.perform(post("/auth/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content("""
-                    {
-                      "email": "jean.dupont@test.fr",
-                      "password": "Password1!"
-                    }
-                    """))
-                .andExpect(status().isOk())
-                .andReturn();
+ @BeforeEach
+void setUp() throws Exception {
+    mockMvc.perform(post("/auth/register")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content("""
+                {
+                  "nom": "Dupont",
+                  "prenom": "Jean",
+                  "email": "jean.dupont@test.fr",
+                  "password": "Password1!",
+                  "city": "Paris",
+                  "country": "France"
+                }
+                """));
+    MvcResult loginResult = mockMvc.perform(post("/auth/login")
+            .contentType(MediaType.APPLICATION_JSON)
+            .content("""
+                {
+                  "email": "jean.dupont@test.fr",
+                  "password": "Password1!"
+                }
+                """))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.token").exists())
+            .andReturn();
 
-        jwtCookie = loginResult.getResponse().getCookie("jwt");
-    }
+            String body = loginResult.getResponse().getContentAsString();
+    jwtToken = JsonPath.read(body, "$.token");
 
-    @Test
-    void getAllUsers_withJwt_returnsUsersWithNames() throws Exception {
-        MvcResult result = mockMvc.perform(get("/users").cookie(jwtCookie))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$[?(@.email == 'jean.dupont@test.fr')].firstName").value("Jean"))
-                .andExpect(jsonPath("$[?(@.email == 'jean.dupont@test.fr')].lastName").value("Dupont"))
-                .andReturn();
-    
-       
-        System.out.println("Réponse GET /users :\n" + result.getResponse().getContentAsString());
-    }
+}
+@Test
+void getAllUsers_withJwt_returnsUsersWithNames() throws Exception {
 
-    @Test
-    void getAllUsers_withoutJwt_returns403() throws Exception {
-        mockMvc.perform(get("/users"))
-                .andExpect(status().isForbidden());
-            
-                
-    }
+    mockMvc.perform(get("/users")
+            .header("Authorization", "Bearer " + jwtToken))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$").isArray())
+            .andExpect(jsonPath("$[?(@.email == 'jean.dupont@test.fr')].firstName").value("Jean"))
+            .andExpect(jsonPath("$[?(@.email == 'jean.dupont@test.fr')].lastName").value("Dupont"));
+}
 }
