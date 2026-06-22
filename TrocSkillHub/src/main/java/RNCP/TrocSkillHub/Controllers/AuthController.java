@@ -1,5 +1,6 @@
 package RNCP.TrocSkillHub.Controllers;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -63,22 +64,21 @@ public ResponseEntity<?> register(@RequestBody Map<String, String> body, HttpSer
         newUser.setCity(city);
         newUser.setCountry(country);
 
-        User savedUser = userRepository.save(newUser); 
+        User savedUser = userRepository.save(newUser);
 
-    
+      
         String token = jwtService.generateToken(email);
-        ResponseCookie.from("jwt", token)
-            .httpOnly(true)
-            .secure(true)
-            .path("/")
-            .maxAge(Duration.ofMinutes(5))
-            .sameSite("None")
-            .build();
+        Cookie cookie = new Cookie("jwt", token);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(86400);
+        response.addCookie(cookie);
+
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
 
         return ResponseEntity.ok(Map.of(
                 "message", "Inscription réussie",
-                "id", savedUser.getId(),
-                "token", token
+                "id", savedUser.getId()
         ));
 
     } catch (Exception e) {
