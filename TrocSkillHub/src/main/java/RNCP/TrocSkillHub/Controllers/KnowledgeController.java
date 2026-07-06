@@ -1,7 +1,8 @@
 package RNCP.TrocSkillHub.Controllers;
 
 import RNCP.TrocSkillHub.DTOs.KnowledgeDTO;
-import RNCP.TrocSkillHub.Services.KnowledgeService;
+import RNCP.TrocSkillHub.Services.ImplServices.KnowledgeService;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
