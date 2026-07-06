@@ -10,8 +10,7 @@ public class PasswordConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        // Argon2id avec les paramètres recommandés par OWASP:
-        //16 octets de sel, 32 octets de hash, 1 thread, 19 Mo de mémoire, 2 itérations.
+        // Argon2id
         return new Argon2PasswordEncoder(16, 32, 1, 19456, 2);
     }
 }
