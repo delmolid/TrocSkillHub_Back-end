@@ -17,7 +17,7 @@ public class SimpleEmailService implements EmailService {
     private final String mailFrom;
 
     public SimpleEmailService(JavaMailSender mailSender,
-            @Value("${app.mail.from:noreply@trocskillhub.com}") String mailFrom) {
+            @Value("${app.mail.from}") String mailFrom) {
         this.mailSender = mailSender;
         this.mailFrom = mailFrom;
     }
