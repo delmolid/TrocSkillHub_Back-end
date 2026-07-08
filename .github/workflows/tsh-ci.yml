@@ -68,9 +68,9 @@ jobs:
   
   deploy:
       name: Deploy 
-        runs-on: [self-hosted, trocskillserver]
-        needs: test
-          if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      runs-on: [self-hosted, trocskillserver]
+      needs: test
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     steps:
       - name: Deploy  
