@@ -66,18 +66,18 @@ jobs:
           path: ./TrocSkillHub/target/surefire-reports/
           retention-days: 7
   
-deploy:
-  name: Deploy 
-  runs-on: [self-hosted, trocskillserver]
-  needs: test
-  if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+  deploy:
+      name: Deploy 
+        runs-on: [self-hosted, trocskillserver]
+        needs: test
+          if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
-  steps:
-    - name: Deploy  
-      run: |
-        set -e
-        cd ~/workspace/TrocSkillHub_Back-end/TrocSkillHub
-        git fetch origin main
-        git reset --hard origin/main
-        docker compose up -d --build --remove-orphans
-        docker compose ps
+    steps:
+      - name: Deploy  
+        run: |
+          set -e
+          cd ~/workspace/TrocSkillHub_Back-end/TrocSkillHub
+          git fetch origin main
+          git reset --hard origin/main
+          docker compose up -d --build --remove-orphans
+          docker compose ps
