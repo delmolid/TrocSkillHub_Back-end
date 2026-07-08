@@ -72,8 +72,8 @@ jobs:
       needs: test
       if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
-    steps:
-      - name: Deploy  
+      steps:
+        - name: Deploy  
         run: |
           set -e
           cd ~/workspace/TrocSkillHub_Back-end/TrocSkillHub
