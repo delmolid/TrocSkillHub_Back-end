@@ -157,7 +157,6 @@ public ResponseEntity<?> register(@RequestBody Map<String, String> body, HttpSer
             
            
             return ResponseEntity.ok(Map.of(
-                "id", user.getId(),
                 "firstName", user.getFirstName(),
                 "lastName", user.getLastName(),
                 "email", user.getEmail(),
