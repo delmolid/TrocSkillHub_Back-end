@@ -7,6 +7,7 @@ import RNCP.TrocSkillHub.DTOs.ExperienceDTO;
 import RNCP.TrocSkillHub.DTOs.KnowledgeDTO;
 import RNCP.TrocSkillHub.DTOs.ProjectDTO;
 import RNCP.TrocSkillHub.DTOs.UserKnowledgeDTO;
+import RNCP.TrocSkillHub.DTOs.UserPublicResponseDTO;
 import RNCP.TrocSkillHub.DTOs.UserRequestDTO;
 import RNCP.TrocSkillHub.DTOs.UserResponseDTO;
 import RNCP.TrocSkillHub.Models.Category;
@@ -29,6 +30,12 @@ public interface UserMapper {
     @Mapping(target = "experience", source = "experience")
     @Mapping(target = "project", source = "project")
     UserResponseDTO toResponseDTO(User user);
+
+    @Mapping(target = "skills", expression = "java(mapSkills(user.getUserKnowledge()))")
+    @Mapping(target = "needs",  expression = "java(mapNeeds(user.getUserKnowledge()))")
+    UserPublicResponseDTO toPublicResponseDTO(User user);
+    List<UserPublicResponseDTO> toPublicResponseDTOList(List<User> users);
+
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "userKnowledge", ignore = true)
     @Mapping(target = "education", ignore = true)
