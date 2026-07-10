@@ -87,7 +87,18 @@ void getAllUsers_withJwt_returnsUsersWithNames() throws Exception {
             .header("Authorization", "Bearer " + jwtToken))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$").isArray())
-            .andExpect(jsonPath("$[?(@.email == 'jean.dupont@test.fr')].firstName").value("Jean"))
-            .andExpect(jsonPath("$[?(@.email == 'jean.dupont@test.fr')].lastName").value("Dupont"));
+        .andExpect(jsonPath("$[?(@.lastName == 'Dupont')].firstName").value("Jean"));
+}
+
+@Test
+void getAllUsers_withJwt_doesNotExposeSensitiveData() throws Exception {
+
+    mockMvc.perform(get("/users")
+            .header("Authorization", "Bearer " + jwtToken))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[0].email").doesNotExist())
+            .andExpect(jsonPath("$[0].phoneNumber").doesNotExist())
+            .andExpect(jsonPath("$[0].address").doesNotExist())
+            .andExpect(jsonPath("$[0].description").doesNotExist());
 }
 }

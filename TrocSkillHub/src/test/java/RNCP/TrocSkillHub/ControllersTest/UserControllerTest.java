@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.description;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 import static org.assertj.core.api.Assertions.*;
 
@@ -22,8 +23,10 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 
 import RNCP.TrocSkillHub.Controllers.UserController;
+import RNCP.TrocSkillHub.DTOs.UserPublicResponseDTO;
 import RNCP.TrocSkillHub.DTOs.UserRequestDTO;
 import RNCP.TrocSkillHub.DTOs.UserResponseDTO;
 import RNCP.TrocSkillHub.Models.User;
@@ -39,12 +42,16 @@ public class UserControllerTest {
     @Mock
     private UserMapper userMapper;
 
+    @Mock
+    private Authentication authentication;
+
     @InjectMocks
     private UserController userController;
 
     private User user;
     private UserRequestDTO userRequestDTO;
     private UserResponseDTO userResponseDTO;
+    private UserPublicResponseDTO userPublicResponseDTO;
 
     @BeforeEach
     void setUp() {
@@ -65,58 +72,80 @@ public class UserControllerTest {
          null, null, null,
             null, null, null, null, null,null
         );
+        userPublicResponseDTO = new UserPublicResponseDTO(
+            "jean", "ali", null, null, null, null
+        );
+
+        // Par défaut, l'utilisateur authentifié correspond au propriétaire (id=1) ;
+        // utilisé uniquement par les tests qui en ont besoin (lenient pour éviter
+        // les UnnecessaryStubbingException sur les tests qui n'en ont pas besoin).
+        lenient().when(authentication.getName()).thenReturn("test@example.com");
+        lenient().when(userService.getUserByEmail("test@example.com")).thenReturn(Optional.of(user));
     }
 
     @Test
-    @DisplayName("getAllUsers - Should return a list of users")
+    @DisplayName("getAllUsers - Should return a public list of users, without sensitive data")
     void getAllUsers_shouldReturnUserList() {
         List<User> users = Arrays.asList(user);
-        List<UserResponseDTO> responseDTOs = Arrays.asList(userResponseDTO);
+        List<UserPublicResponseDTO> responseDTOs = Arrays.asList(userPublicResponseDTO);
 
         when(userService.getAllUsers()).thenReturn(users);
-        when(userMapper.toResponseDTOList(users)).thenReturn(responseDTOs);
+        when(userMapper.toPublicResponseDTOList(users)).thenReturn(responseDTOs);
 
-        ResponseEntity<List<UserResponseDTO>> response = userController.getAllUsers();
+        ResponseEntity<List<UserPublicResponseDTO>> response = userController.getAllUsers();
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).hasSize(1);
         assertThat(response.getBody().get(0).firstName()).isEqualTo("jean");
         assertThat(response.getBody().get(0).lastName()).isEqualTo("ali");
-        assertThat(response.getBody().get(0).email()).isEqualTo("test@example.com");
     }
 
     @Test
     @DisplayName("getAllUsers - should return empty list when no users")
     void getAllUsers_shouldReturnEmptyList_whenNoUsers() {
         when(userService.getAllUsers()).thenReturn(Collections.emptyList());
-        when(userMapper.toResponseDTOList(Collections.emptyList())).thenReturn(Collections.emptyList());
+        when(userMapper.toPublicResponseDTOList(Collections.emptyList())).thenReturn(Collections.emptyList());
 
-        ResponseEntity<List<UserResponseDTO>> response = userController.getAllUsers();
+        ResponseEntity<List<UserPublicResponseDTO>> response = userController.getAllUsers();
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isEmpty();
     }
 
     @Test
-    @DisplayName("getUserById - should return user when user exists")
-    void getUserById_shouldReturnUser_whenUserExists() {
+    @DisplayName("getCurrentUser - should return the authenticated user's own profile")
+    void getCurrentUser_shouldReturnUser_whenUserExists() {
         when(userService.getUserById(1L)).thenReturn(Optional.of(user));
         when(userMapper.toResponseDTO(user)).thenReturn(userResponseDTO);
 
-        ResponseEntity<?> response = userController.getUserById(1L);
+        ResponseEntity<?> response = userController.getCurrentUser(authentication);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isEqualTo(userResponseDTO);
     }
 
     @Test
-    @DisplayName("getUserById - should return 404 when user Not Found")
-    void getUserById_shouldReturn404_whenUserNotFound() {
+    @DisplayName("getCurrentUser - should return 404 when user Not Found")
+    void getCurrentUser_shouldReturn404_whenUserNotFound() {
+        User self99 = new User();
+        self99.setId(99L);
+        self99.setEmail("test@example.com");
+        when(userService.getUserByEmail("test@example.com")).thenReturn(Optional.of(self99));
         when(userService.getUserById(99L)).thenReturn(Optional.empty());
 
-        ResponseEntity<?> response = userController.getUserById(99L);
+        ResponseEntity<?> response = userController.getCurrentUser(authentication);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    @DisplayName("getCurrentUser - should return 401 when not authenticated")
+    void getCurrentUser_shouldReturn401_whenNotAuthenticated() {
+        when(userService.getUserByEmail("test@example.com")).thenReturn(Optional.empty());
+
+        ResponseEntity<?> response = userController.getCurrentUser(authentication);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
     }
 
     @Test
@@ -145,70 +174,112 @@ public class UserControllerTest {
     }
 
     @Test
-    @DisplayName("updateUser - should update user successfully")
-    void updateUser_shouldUpdateUser_successfully() {
+    @DisplayName("updateCurrentUser - should update the authenticated user's own profile")
+    void updateCurrentUser_shouldUpdateUser_successfully() {
         when(userService.updateUser(eq(1L), eq(userRequestDTO))).thenReturn(user);
         when(userMapper.toResponseDTO(user)).thenReturn(userResponseDTO);
 
-        ResponseEntity<?> response = userController.updateUser(1L, userRequestDTO);
+        ResponseEntity<?> response = userController.updateCurrentUser(userRequestDTO, authentication);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isEqualTo(userResponseDTO);
     }
 
     @Test
-    @DisplayName("updateUser - should return 404 when user Not Found")
-    void updateUser_shouldReturn404_whenUserNotFound() {
+    @DisplayName("updateCurrentUser - should return 404 when user Not Found")
+    void updateCurrentUser_shouldReturn404_whenUserNotFound() {
+        User self99 = new User();
+        self99.setId(99L);
+        self99.setEmail("test@example.com");
+        when(userService.getUserByEmail("test@example.com")).thenReturn(Optional.of(self99));
         when(userService.updateUser(eq(99L), eq(userRequestDTO)))
                 .thenThrow(new RuntimeException("Utilisateur non trouvé"));
 
-        ResponseEntity<?> response = userController.updateUser(99L, userRequestDTO);
+        ResponseEntity<?> response = userController.updateCurrentUser(userRequestDTO, authentication);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
 
     @Test
-    @DisplayName("patchUser - should patch user successfully")
-    void patchUser_shouldPatchUser_successfully() {
+    @DisplayName("updateCurrentUser - should return 401 when not authenticated")
+    void updateCurrentUser_shouldReturn401_whenNotAuthenticated() {
+        when(userService.getUserByEmail("test@example.com")).thenReturn(Optional.empty());
+
+        ResponseEntity<?> response = userController.updateCurrentUser(userRequestDTO, authentication);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+    }
+
+    @Test
+    @DisplayName("patchCurrentUser - should patch the authenticated user's own profile")
+    void patchCurrentUser_shouldPatchUser_successfully() {
         when(userService.patchUser(eq(1L), eq(userRequestDTO))).thenReturn(user);
         when(userMapper.toResponseDTO(user)).thenReturn(userResponseDTO);
 
-        ResponseEntity<?> response = userController.patchUser(1L, userRequestDTO);
+        ResponseEntity<?> response = userController.patchCurrentUser(userRequestDTO, authentication);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isEqualTo(userResponseDTO);
     }
 
     @Test
-    @DisplayName("patchUser - should return 404 when user Not Found")
-    void patchUser_shouldReturn404_whenUserNotFound() {
+    @DisplayName("patchCurrentUser - should return 404 when user Not Found")
+    void patchCurrentUser_shouldReturn404_whenUserNotFound() {
+        User self99 = new User();
+        self99.setId(99L);
+        self99.setEmail("test@example.com");
+        when(userService.getUserByEmail("test@example.com")).thenReturn(Optional.of(self99));
         when(userService.patchUser(eq(99L), eq(userRequestDTO)))
                 .thenThrow(new RuntimeException("Utilisateur non trouvé"));
 
-        ResponseEntity<?> response = userController.patchUser(99L, userRequestDTO);
+        ResponseEntity<?> response = userController.patchCurrentUser(userRequestDTO, authentication);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
 
     @Test
-    @DisplayName("deleteUser - should delete user successfully")
-    void deleteUser_shouldDeleteUser_successfully() {
+    @DisplayName("patchCurrentUser - should return 401 when not authenticated")
+    void patchCurrentUser_shouldReturn401_whenNotAuthenticated() {
+        when(userService.getUserByEmail("test@example.com")).thenReturn(Optional.empty());
+
+        ResponseEntity<?> response = userController.patchCurrentUser(userRequestDTO, authentication);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+    }
+
+    @Test
+    @DisplayName("deleteCurrentUser - should delete the authenticated user's own profile")
+    void deleteCurrentUser_shouldDeleteUser_successfully() {
         doNothing().when(userService).deleteUser(1L);
 
-        ResponseEntity<?> response = userController.deleteUser(1L);
+        ResponseEntity<?> response = userController.deleteCurrentUser(authentication);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody().toString()).contains("supprimé");
     }
 
     @Test
-    @DisplayName("deleteUser - should return 404 when user Not Found")
-    void deleteUser_shouldReturn404_whenUserNotFound() {
+    @DisplayName("deleteCurrentUser - should return 404 when user Not Found")
+    void deleteCurrentUser_shouldReturn404_whenUserNotFound() {
+        User self99 = new User();
+        self99.setId(99L);
+        self99.setEmail("test@example.com");
+        when(userService.getUserByEmail("test@example.com")).thenReturn(Optional.of(self99));
         doThrow(new RuntimeException("Utilisateur non trouvé"))
                 .when(userService).deleteUser(99L);
 
-        ResponseEntity<?> response = userController.deleteUser(99L);
+        ResponseEntity<?> response = userController.deleteCurrentUser(authentication);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    @DisplayName("deleteCurrentUser - should return 401 when not authenticated")
+    void deleteCurrentUser_shouldReturn401_whenNotAuthenticated() {
+        when(userService.getUserByEmail("test@example.com")).thenReturn(Optional.empty());
+
+        ResponseEntity<?> response = userController.deleteCurrentUser(authentication);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
     }
 }
